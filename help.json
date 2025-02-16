@@ -1,0 +1,22 @@
+[
+  {
+	"Command": "r",
+	"HelpText": "The `/r` command rolls *n x*-sided dice, where *n* is the number of dice to roll and *x* is how many sides each die should have. The *n* argument is optional, and any number is accepted (even dice that do not exist). If you would like to reroll 1s, add `r1` after the dice to roll. If you would like to add or subtract a value after rolling, add the desired operation to the end of the command. Critical fails (including those rerolled) are __underlined__, while critical successes are displayed with **bold** digits. You may roll at most 10 dice at once, with at most 100 sides each.\n\n**Emergency Stop:** If rerolling is enabled and a roll fails to produce at least a 2 after ten tries, the rerolls will be stopped to avoid timing out. If this happens, the roll will be assigned a random value of at least 2, highlighted in __*underlined italic*__digits, and a note explaining this will be printed under the results.\n\n**Usage:**\n`/r d6` rolls one 6-sided die.\n`/r d69` rolls one 69-sided die.\n`/r 2d4` rolls two 4-sided dice.\n`/r 3d20r1`rolls three 20-sided dice and rerolls 1s.\n`/r 5d12+4` rolls five 12-sided dice and adds 4 to the result.\n`/r 3d4r1-2` rolls three 4-sided dice, rerolls 1s, and subtracts 2 from the result."
+  },
+  {
+	"Command": "q",
+	"HelpText": "The `/q` command returns a random quote from the database, with its accompanying data. This command has no arguments.\n\n**Data storage:** The following data is stored for quotes:\n- ID: A number to reference the quote (zero-indexed). This is displayed at the very beginning of every message returned in the following format: `#No`.\n- Body: The quote itself. Links for attachments are appended to this text.\n- User ID: The Discord user ID of the original message's author. This is stored so that an up-to-date display name can be shown whenever a quote is recalled.\n- Link: A link pointing to the original message so that it can be easily accessed.\n\n**Error-handling:** Since an up-to-date display name is always queried whenever a quote is recalled, in the event that the Discord API cannot respond, a placeholder name (‘Someone’) will be used instead. If this happens, a warning in small print will be displayed at the bottom of the quote. Please note that it should still be possible to manually access the original message and check its author through the link, should you wish to see it.\n\n**Usage**:\n`/q` returns a random quote."
+  },
+  {
+	"Command": "sq",
+	"HelpText": "The `/sq` command returns a specific quote. The quote to be recalled may be referenced by its ID number (zero-indexed). You can also specifically query for the latest quote to be added to the database. For general information about quotes, see `/help q`.\n\n**Usage:**\n`/sq 56` returns quote #56 (the 55th quote to be added to the database).\n`/sq latest` returns the latest quote."
+  },
+  {
+	"Command": "help",
+	"HelpText": "https://cdn.discordapp.com/attachments/1337097452859428877/1338829503711150080/guy_screaming_for_help_while_holding_a_chick_fil_a_drink.mp4"
+  },
+  {
+	"Command": "character",
+	"HelpText": "The `/character` command returns a character block for use with Dungeons and Dragons. This command takes no arguments. Six sets of four d6's will be rolled, and three highest results will be summed up in each set. The sum of every set will also be displayed.\n\n**Usage:**\n`/character` will return a randomly-rolled D&D stat block."
+  }
+]
