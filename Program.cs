@@ -11,7 +11,7 @@ using DSharpPlus.Exceptions;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
-using System.Text.RegularExpressions;
+using System.Threading.Channels;
 
 namespace Acorn
 {
@@ -31,7 +31,19 @@ namespace Acorn
 
     class Program
     {
+        static string discordTokenPath = "tock.txt";
+        List<Quotes> quotesShuffled = new List<Quotes>();
+        int quotesShuffledI = 0;
+        List<Quotes> quotesUnshuffled = new List<Quotes>();
 
+        void PrintDebugMessage(string message)
+        {
+            string discordToken = File.ReadLines(discordTokenPath).First();
+            DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
+            DiscordClient client = builder.Build();
+
+
+        }
 
         static string PrintQuote(string idInput, bool isRandom)
         {
@@ -80,7 +92,7 @@ namespace Acorn
                 if (error != "") { username = "Someone"; }
                 else { username = user.GlobalName; }
 
-                answer += $"`#{quote[id].Id}` **{username}** [said](https://discord.com/channels/{quote[id].Link}):";
+                answer += $"`#{quote[id].Id}` **{username}** [said]({quote[id].Link}):";
                 string[] bodySplit = quote[id].Body.Split('\n');
                 for (int i = 0; i < bodySplit.Count(); i++)
                 {
@@ -191,7 +203,6 @@ namespace Acorn
 
         static async Task Main(string[] args)
         {
-            string discordTokenPath = "tock.txt";
             string discordToken = File.ReadLines(discordTokenPath).First();
 
             if (string.IsNullOrEmpty(discordToken))
@@ -263,7 +274,7 @@ namespace Acorn
                 newQuote.Id = quote.Count;
                 newQuote.Body = message.Content;
                 newQuote.UserId = author.Id;
-                newQuote.Link = message.JumpLink.ToString().Substring(33); //Remove the redundant parts (sure do hope this doesn't change in the future...)
+                newQuote.Link = message.JumpLink.ToString();
                 if (attachments.Count > 0)
                 {
                     for (int i = 0; i < attachments.Count; i++)
