@@ -95,14 +95,14 @@ namespace Acorn
 
         static void CreateBackup(string quotesPath)
         {
-            File.Move(quotesPath, "/backups/" + quotesPath.Insert(quotesPath.IndexOf('.'), $"-backup_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm")}"));
+            File.Move(quotesPath, "backups/" + quotesPath.Insert(quotesPath.IndexOf('.'), $"-backup_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}"));
             //quotes.json -> /backups/quotes-backup_yyyy-MM-dd-HH-mm-ss.json
         }
 
         static void WriteToQuotes(string quotesPath, List<Quotes> quote)
         {
             using FileStream writeQuotes = File.Create(quotesPath);
-            JsonSerializer.SerializeAsync(writeQuotes, quote);
+            JsonSerializer.Serialize(writeQuotes, quote);
         }
 
         static (string dice, char modifierType, int modifier, string answer, bool alreadyAnswered) CheckModifier(string dice)
@@ -263,7 +263,7 @@ namespace Acorn
                 newQuote.Id = quote.Count;
                 newQuote.Body = message.Content;
                 newQuote.UserId = author.Id;
-                newQuote.Link = message.JumpLink.ToString().Substring(30); //Remove the redundant parts (sure do hope this doesn't change in the future...)
+                newQuote.Link = message.JumpLink.ToString().Substring(33); //Remove the redundant parts (sure do hope this doesn't change in the future...)
                 if (attachments.Count > 0)
                 {
                     for (int i = 0; i < attachments.Count; i++)
