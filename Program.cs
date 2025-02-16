@@ -11,7 +11,7 @@ using DSharpPlus.Exceptions;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
-using System.Threading.Channels;
+using System.Linq;
 
 namespace Acorn
 {
@@ -26,74 +26,44 @@ namespace Acorn
         public int Id { get; set; }
         public string? Body { get; set; }
         public ulong UserId { get; set; }
+        public string? Username { get; set; }
         public string? Link { get; set; }
+    }
+
+    public class Users
+    {
+        public ulong Id { get; set; }
+        public required string Name { get; set; }
     }
 
     class Program
     {
         static string discordTokenPath = "tock.txt";
-        List<Quotes> quotesShuffled = new List<Quotes>();
-        int quotesShuffledI = 0;
-        List<Quotes> quotesUnshuffled = new List<Quotes>();
+        static string quotesPath = "quotes.json";
+        static string discordToken = File.ReadLines(discordTokenPath).First();
+        static DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
+        static DiscordClient debugClient = builder.Build();
+        static DiscordChannel debugChannel;
+        static List<Quotes> quotesShuffled = new List<Quotes>();
+        static int quotesShuffledI = 0;
 
-        void PrintDebugMessage(string message)
+        async static void PrintDebugMessage(string message)
         {
-            string discordToken = File.ReadLines(discordTokenPath).First();
-            DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
-            DiscordClient client = builder.Build();
-
-
+            await debugChannel.SendMessageAsync(message);
         }
 
-        static string PrintQuote(string idInput, bool isRandom)
+        static string PrintQuote(int id, bool isRandom)
         {
             string answer = "";
-            string quotesPath = "quotes.json";
-            DiscordUser user = null;
-            string discordToken = File.ReadLines("tock.txt").First();
-            DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
-            DiscordClient client = builder.Build();
             string error = "";
-            string username = "";
-            int id = 0;
 
-            List<Quotes>? quote = null;
-            using (FileStream readQuotes = File.OpenRead(quotesPath))
-            {
-                quote =
-                    JsonSerializer.Deserialize<List<Quotes>>(readQuotes);
-            }
-
-            if (isRandom) //q called
-            {
-                Random random = new Random();
-                id = random.Next(0, quote.Count);
-            }
-            else //sq called
-            {
-                if (idInput[0] == '#') { idInput = idInput.Remove(0, 1); }
-
-                if (idInput.ToLower() == "latest") { id = quote[quote.Count - 1].Id; }
-                else if (!Int32.TryParse(idInput, out id)) { answer = "Error: Invalid format. For help, see: `/help sq`."; }
-                else if (id < 0 || id > quote.Count() - 1) { answer = "Error: The specified number falls outside the accepted range. For help, see: `/help sq`."; }
-            }
+            List<Quotes> quotesList = quotesShuffled;
+            if (!isRandom) { quotesList = quotesShuffled.OrderBy(o => o.Id).ToList(); }
 
             if (answer == "")
             {
-                try
-                {
-                    user = client.GetUserAsync(quote[id].UserId).Result;
-                }
-                catch (Exception e)
-                {
-                    if (e is BadRequestException) { error = "\n-# Error: The user ID provided was not valid. Is it stored correctly? Falling back to placeholder name."; }
-                    if (e is ServerErrorException) { error = "\n-# Error: Discord has encountered a server error. Falling back to placeholder name."; }
-                }
-                if (error != "") { username = "Someone"; }
-                else { username = user.GlobalName; }
-
-                answer += $"`#{quote[id].Id}` **{username}** [said]({quote[id].Link}):";
-                string[] bodySplit = quote[id].Body.Split('\n');
+                answer += $"`#{quotesList[id].Id}` **{quotesList[id].Username}** [said]({quotesList[id].Link}):";
+                string[] bodySplit = quotesList[id].Body.Split('\n');
                 for (int i = 0; i < bodySplit.Count(); i++)
                 {
                     answer += $"\n> {bodySplit[i]}";
@@ -105,13 +75,85 @@ namespace Acorn
             return answer;
         }
 
-        static void CreateBackup(string quotesPath)
+        static void CreateBackup()
         {
             File.Move(quotesPath, "backups/" + quotesPath.Insert(quotesPath.IndexOf('.'), $"-backup_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}"));
             //quotes.json -> /backups/quotes-backup_yyyy-MM-dd-HH-mm-ss.json
         }
 
-        static void WriteToQuotes(string quotesPath, List<Quotes> quote)
+        static void ShuffleQuotes()
+        {
+            Console.Write("  Shuffling the shuffled quotes list. ");
+            Random random = new Random();
+            for (int i = 0; i < quotesShuffled.Count - 1; i++)
+            {
+                int r = random.Next(i, quotesShuffled.Count);
+                (quotesShuffled[r], quotesShuffled[i]) = (quotesShuffled[i], quotesShuffled[r]);
+            }
+            quotesShuffledI = 0;
+            Console.WriteLine($"Shuffled list index set to {quotesShuffledI}");
+        }
+
+        static void ReadQuotes(DiscordClient client)
+        {
+            int usersI = 0;
+            int error = 0;
+            int invalidUserId = 0;
+            int erroredUserId = 0;
+            DiscordUser discordUser = null;
+
+            Console.WriteLine($"  Reading from ‘{quotesPath}’.");
+            using (FileStream readQuotes = File.OpenRead(quotesPath))
+            {
+                quotesShuffled = JsonSerializer.Deserialize<List<Quotes>>(readQuotes);
+            }
+
+            Console.Write("  Getting number of unique user IDs in quotes list. ");
+            usersI = quotesShuffled.Select(x => x.UserId).Distinct().Count();
+            ulong[] distinctUserIds = new ulong[usersI];
+            distinctUserIds = quotesShuffled.Select(x => x.UserId).Distinct().ToArray();
+            string[] distinctUsernames = new string[usersI];
+            Console.WriteLine($"Result: {usersI}");
+
+            Console.WriteLine("  Filling up the users list.");
+            List<Users> user = new List<Users>();
+
+            Console.Write("  Querying the API for global nicknames. ");
+            for (int i = 0; i < usersI; i++)
+            {
+                try
+                {
+                    discordUser = client.GetUserAsync(distinctUserIds[i]).Result;
+                }
+                catch (Exception e)
+                {
+                    if (e is BadRequestException) { error = 1; }
+                    if (e is ServerErrorException) { error = 2; }
+                }
+                if (error != 0) { distinctUsernames[i] = "Someone"; }
+                else { distinctUsernames[i] = discordUser.GlobalName; }
+            }
+            
+            Console.WriteLine($"Error?: {error}.");
+            if (error == 1) { PrintDebugMessage($"While caching a user ID, one or more of them turned out to be invalid. Index: {invalidUserId}"); }
+            if (error == 2) { PrintDebugMessage($"The Discord API has encountered an error, so one or more global nicknames have been set to Someone. Index: {erroredUserId}"); }
+
+            Console.WriteLine("  Filling up quotes lists with queried names.");
+            for (int i = 0; i < distinctUsernames.Count(); i++)
+            {
+                for (int j = 0; j < quotesShuffled.Count; j++)
+                {
+                    if (distinctUserIds[i] == quotesShuffled[j].UserId)
+                    {
+                        quotesShuffled[j].Username = distinctUsernames[i];
+                    }
+                }
+            }
+
+            ShuffleQuotes();
+        }
+
+        static void WriteToQuotes(List<Quotes> quote)
         {
             using FileStream writeQuotes = File.Create(quotesPath);
             JsonSerializer.Serialize(writeQuotes, quote);
@@ -203,15 +245,17 @@ namespace Acorn
 
         static async Task Main(string[] args)
         {
-            string discordToken = File.ReadLines(discordTokenPath).First();
+            var initTime = System.Diagnostics.Stopwatch.StartNew();
+            debugChannel = debugClient.GetChannelAsync(1337097452859428877).Result;
+            PrintDebugMessage($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Initialising…");
 
             if (string.IsNullOrEmpty(discordToken))
             {
-                Console.WriteLine("Error: No discord token found. Please provide a token via the DISCORD_TOKEN environment variable.");
+                PrintDebugMessage("Error: No discord token found. Please provide a token via the DISCORD_TOKEN environment variable.");
+                initTime.Stop();
                 Environment.Exit(1);
             }
-
-            DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
+            
 
             // Setup the commands extension
             builder.UseCommands((IServiceProvider serviceProvider, CommandsExtension extension) =>
@@ -237,11 +281,18 @@ namespace Acorn
 
             DiscordClient client = builder.Build();
 
+            Console.WriteLine("Initialising quotes...");
+            ReadQuotes(client);
+            Console.WriteLine("Quotes loaded.");
+
             // We can specify a status for our bot. Let's set it to "playing" and set the activity to "with fire".
             DiscordActivity status = new("with fire", DiscordActivityType.Playing);
 
             // Now we connect and log in.
             await client.ConnectAsync(status, DiscordUserStatus.Online);
+
+            initTime.Stop();
+            PrintDebugMessage($"Initialising finished in {initTime.ElapsedMilliseconds}ms.");
 
             // And now we wait infinitely so that our bot actually stays connected.
             await Task.Delay(-1);
@@ -257,37 +308,45 @@ namespace Acorn
             [AllowedProcessors(typeof(MessageCommandProcessor))]
             public async Task AddQuote(MessageCommandContext context, DiscordMessage message)
             {
-                string quotesPath = "quotes.json";
-                DiscordUser? author = message.Author;
-                IReadOnlyList<DiscordAttachment> attachments = message.Attachments;
+                var AddQuoteTime = System.Diagnostics.Stopwatch.StartNew();
+                Random random = new Random();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Adding quote.");
 
-                List<Quotes>? quote = null;
-                using (FileStream readQuotes = File.OpenRead(quotesPath))
+                if (quotesShuffled.Any(a => a.Link.Substring(a.Link.LastIndexOf('/') + 1) == message.Id.ToString()))
                 {
-                    quote =
-                        await JsonSerializer.DeserializeAsync<List<Quotes>>(readQuotes);
+                    await context.RespondAsync("This quote already exists!");
                 }
-
-                CreateBackup(quotesPath);
-
-                Quotes newQuote = new Quotes();
-                newQuote.Id = quote.Count;
-                newQuote.Body = message.Content;
-                newQuote.UserId = author.Id;
-                newQuote.Link = message.JumpLink.ToString();
-                if (attachments.Count > 0)
+                else
                 {
-                    for (int i = 0; i < attachments.Count; i++)
+                    DiscordUser? author = message.Author;
+                    IReadOnlyList<DiscordAttachment> attachments = message.Attachments;
+
+                    CreateBackup();
+
+                    List<Quotes> quotesUnshuffled = quotesShuffled.OrderBy(o => o.Id).ToList();
+                    Quotes newQuote = new Quotes();
+                    newQuote.Id = quotesUnshuffled.Count;
+                    newQuote.Body = message.Content;
+                    newQuote.UserId = author.Id;
+                    newQuote.Link = message.JumpLink.ToString();
+                    if (attachments.Count > 0)
                     {
-                        newQuote.Body += $"\n{attachments[i].Url}";
+                        for (int i = 0; i < attachments.Count; i++)
+                        {
+                            newQuote.Body += $"\n{attachments[i].Url}";
+                        }
                     }
+                    quotesUnshuffled.Add(newQuote);
+                    quotesShuffled.Insert(random.Next(quotesShuffledI, quotesShuffled.Count), newQuote);
+                    WriteToQuotes(quotesUnshuffled);
+
+                    string answer = "Adding quote:\n\n";
+                    await context.RespondAsync($"{answer}{PrintQuote(quotesUnshuffled.Count - 1, false)}");
                 }
-                quote.Add(newQuote);
 
-                WriteToQuotes(quotesPath, quote);
-
-                string answer = "Adding quote:\n";
-                await context.RespondAsync($"{answer}{PrintQuote((quote.Count - 1).ToString(), false)}");
+                AddQuoteTime.Stop();
+                Console.WriteLine($"  Quote-adding finished in {AddQuoteTime.ElapsedMilliseconds}ms.");
+                if (AddQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Adding a quote took {AddQuoteTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -299,6 +358,9 @@ namespace Acorn
             [Command("help"), Description("Prints the help article for a given command.")]
             public static async ValueTask ExecuteAsync(CommandContext context, [Description("The command which you need help with.")] string command)
             {
+                var HelpTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a help article.");
+
                 string helpArticlesPath = "help.json";
                 string answer = "";
 
@@ -317,6 +379,10 @@ namespace Acorn
                 }
 
                 await context.RespondAsync(answer);
+
+                HelpTime.Stop();
+                Console.WriteLine($"  Help article-returning finished in {HelpTime.ElapsedMilliseconds}ms.");
+                if (HelpTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a help article took {HelpTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -325,7 +391,17 @@ namespace Acorn
             [Command("q"), Description("Prints a random quote from the collection.")]
             public static async ValueTask ExecuteAsync(CommandContext context)
             {
-                await context.RespondAsync(PrintQuote("0", true));
+                var RandomQuoteTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a random quote.");
+
+                await context.RespondAsync(PrintQuote(quotesShuffledI, true));
+                quotesShuffledI++;
+
+                if (quotesShuffledI >= quotesShuffled.Count) { ShuffleQuotes(); }
+
+                RandomQuoteTime.Stop();
+                Console.WriteLine($"  Quote-returning finished in {RandomQuoteTime.ElapsedMilliseconds}ms. Random quote index is now {quotesShuffledI}.");
+                if (RandomQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a random quote took {RandomQuoteTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -334,7 +410,23 @@ namespace Acorn
             [Command("sq"), Description("Prints a specified quote from the collection.")]
             public static async ValueTask ExecuteAsync(CommandContext context, [Description("The number of the quote you wish to recall.")] string quoteId)
             {
-                await context.RespondAsync(PrintQuote(quoteId, false));
+                var SpecificQuoteTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a specific quote.");
+                int id = 0;
+                string answer = "";
+
+                if (quoteId[0] == '#') { quoteId = quoteId.Remove(0, 1); }
+
+                if (quoteId.ToLower() == "latest") { id = quotesShuffled.Count - 1; }
+                else if (!Int32.TryParse(quoteId, out id)) { answer = "Error: Invalid format. For help, see: `/help sq`."; }
+                else if (id < 0 || id > quotesShuffled.Count() - 1) { answer = "Error: The specified number falls outside the accepted range. For help, see: `/help sq`."; }
+
+                if (answer == "") { await context.RespondAsync(PrintQuote(id, false)); }
+                else { await context.RespondAsync(answer); }
+
+                SpecificQuoteTime.Stop();
+                Console.WriteLine($"  Quote-returning finished in {SpecificQuoteTime.ElapsedMilliseconds}ms.");
+                if (SpecificQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a quote took {SpecificQuoteTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -343,8 +435,10 @@ namespace Acorn
             [Command("srchq"), Description("Searches for quotes that match the given query.")]
             public static async ValueTask ExecuteAsync(CommandContext context, [Description("The search query. At least 3 characters long.")] string query)
             {
+                var SearchQuoteTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Searching for quotes.");
+
                 string answer = "";
-                string quotesPath = "quotes.json";
 
                 if (query.Length < 3)
                 {
@@ -360,8 +454,6 @@ namespace Acorn
                     }
 
                     DiscordUser user = null;
-                    string discordToken = File.ReadLines("tock.txt").First();
-                    DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
                     DiscordClient client = builder.Build();
                     string error = "";
                     string username = "";
@@ -409,6 +501,10 @@ namespace Acorn
                         await context.RespondAsync(answer);
                     }
                 }
+
+                SearchQuoteTime.Stop();
+                Console.WriteLine($"  Quote-searching finished in {SearchQuoteTime.ElapsedMilliseconds}ms.");
+                if (SearchQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Searching for quotes took {SearchQuoteTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -417,6 +513,9 @@ namespace Acorn
             [Command("character"), Description("Prints a randomly-rolled Dungeons and Dragons character block.")]
             public static async ValueTask ExecuteAsync(CommandContext context)
             {
+                var CharacterTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Generating a character.");
+
                 int[] RollCharacter(int[] set)
                 {
                     Random random = new Random();
@@ -454,6 +553,10 @@ namespace Acorn
 
                 answer += $"\nTotal: {sums.Sum()}";
                 await context.RespondAsync(answer);
+
+                CharacterTime.Stop();
+                Console.WriteLine($"  Character-generating finished in {CharacterTime.ElapsedMilliseconds}ms.");
+                if (CharacterTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Generating a character took {CharacterTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -462,6 +565,9 @@ namespace Acorn
             [Command("r"), Description("Rolls n x-sided dice. Example: ‘/r 2d4’. Details: ‘/help r’.")]
             public static async ValueTask ExecuteAsync(CommandContext context, [Description("The number of dice to roll and the number of their sides. Example: ‘2d4’.")] string dice)
             {
+                var RollTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Rolling dice.");
+
                 bool hasReroll = false;
                 string[] dicePreSplit = new string[2];
                 int[] diceSplit = new int[2];
@@ -497,6 +603,10 @@ namespace Acorn
                 }
 
                 await context.RespondAsync(answer);
+
+                RollTime.Stop();
+                Console.WriteLine($"  Character-generating finished in {RollTime.ElapsedMilliseconds}ms.");
+                if (RollTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Generating a character took {RollTime.ElapsedMilliseconds}ms."); }
             }
         }
     }
