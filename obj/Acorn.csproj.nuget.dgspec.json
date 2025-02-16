@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\szija\\OneDrive\\Acorn\\Acorn.csproj": {}
+    "C:\\Users\\szija\\OneDrive\\Acorn\\acorn-bot\\Acorn.csproj": {}
   },
   "projects": {
-    "C:\\Users\\szija\\OneDrive\\Acorn\\Acorn.csproj": {
+    "C:\\Users\\szija\\OneDrive\\Acorn\\acorn-bot\\Acorn.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\szija\\OneDrive\\Acorn\\Acorn.csproj",
+        "projectUniqueName": "C:\\Users\\szija\\OneDrive\\Acorn\\acorn-bot\\Acorn.csproj",
         "projectName": "Acorn",
-        "projectPath": "C:\\Users\\szija\\OneDrive\\Acorn\\Acorn.csproj",
+        "projectPath": "C:\\Users\\szija\\OneDrive\\Acorn\\acorn-bot\\Acorn.csproj",
         "packagesPath": "C:\\Users\\szija\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\szija\\OneDrive\\Acorn\\obj\\",
+        "outputPath": "C:\\Users\\szija\\OneDrive\\Acorn\\acorn-bot\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

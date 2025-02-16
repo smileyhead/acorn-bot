@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "9yvdKNyF/Lg=",
+  "dgSpecHash": "2lwor84aFvo=",
   "success": true,
-  "projectFilePath": "C:\\Users\\szija\\OneDrive\\Acorn\\Acorn.csproj",
+  "projectFilePath": "C:\\Users\\szija\\OneDrive\\Acorn\\acorn-bot\\Acorn.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\szija\\.nuget\\packages\\communitytoolkit.highperformance\\8.3.2\\communitytoolkit.highperformance.8.3.2.nupkg.sha512",
     "C:\\Users\\szija\\.nuget\\packages\\dsharpplus\\5.0.0-nightly-02453\\dsharpplus.5.0.0-nightly-02453.nupkg.sha512",

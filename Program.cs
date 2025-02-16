@@ -95,8 +95,8 @@ namespace Acorn
 
         static void CreateBackup(string quotesPath)
         {
-            File.Move(quotesPath, quotesPath.Insert(quotesPath.IndexOf('.'), $"-backup_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm")}"));
-            //quotes.json -> quotes-backup_YYYY-MM-DD-hh-mm-ss.json
+            File.Move(quotesPath, "/backups/" + quotesPath.Insert(quotesPath.IndexOf('.'), $"-backup_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm")}"));
+            //quotes.json -> /backups/quotes-backup_yyyy-MM-dd-HH-mm-ss.json
         }
 
         static void WriteToQuotes(string quotesPath, List<Quotes> quote)
