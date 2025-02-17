@@ -54,22 +54,18 @@ namespace Acorn
 
         static string PrintQuote(int id, bool isRandom)
         {
+            Console.WriteLine("  Printing a quote.");
+
             string answer = "";
-            string error = "";
 
             List<Quotes> quotesList = quotesShuffled;
-            if (!isRandom) { quotesList = quotesShuffled.OrderBy(o => o.Id).ToList(); }
+            if (!isRandom) { quotesList = quotesShuffled.OrderBy(o => o.Id).ToList(); Console.WriteLine("    Unshuffled quotes list created."); }
 
-            if (answer == "")
+            answer += $"`#{quotesList[id].Id}` **{quotesList[id].Username}** [said]({quotesList[id].Link}):";
+            string[] bodySplit = quotesList[id].Body.Split('\n');
+            for (int i = 0; i < bodySplit.Count(); i++)
             {
-                answer += $"`#{quotesList[id].Id}` **{quotesList[id].Username}** [said]({quotesList[id].Link}):";
-                string[] bodySplit = quotesList[id].Body.Split('\n');
-                for (int i = 0; i < bodySplit.Count(); i++)
-                {
-                    answer += $"\n> {bodySplit[i]}";
-                }
-
-                answer += error;
+                answer += $"\n> {bodySplit[i]}";
             }
 
             return answer;
@@ -77,6 +73,7 @@ namespace Acorn
 
         static void CreateBackup()
         {
+            Console.WriteLine("  Backing up quotes.");
             File.Move(quotesPath, "backups/" + quotesPath.Insert(quotesPath.IndexOf('.'), $"-backup_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}"));
             //quotes.json -> /backups/quotes-backup_yyyy-MM-dd-HH-mm-ss.json
         }
@@ -161,6 +158,8 @@ namespace Acorn
 
         static (string dice, char modifierType, int modifier, string answer, bool alreadyAnswered) CheckModifier(string dice)
         {
+            Console.WriteLine("  Checking dice modifiers.");
+
             string answer = "";
             bool alreadyAnswered = false;
             char modifierType = '\0';
@@ -189,6 +188,8 @@ namespace Acorn
 
         static string RollDice(int diceN, int sidesN, char modifierType, int modifier, bool hasReroll)
         {
+            Console.WriteLine("  Rolling dice.");
+
             string answer = "";
             Random random = new Random();
             int[] rolls = new int[diceN];
@@ -315,6 +316,7 @@ namespace Acorn
                 if (quotesShuffled.Any(a => a.Link.Substring(a.Link.LastIndexOf('/') + 1) == message.Id.ToString()))
                 {
                     await context.RespondAsync("This quote already exists!");
+                    Console.WriteLine("  Error: Quote exists.");
                 }
                 else
                 {
@@ -328,6 +330,7 @@ namespace Acorn
                     newQuote.Id = quotesUnshuffled.Count;
                     newQuote.Body = message.Content;
                     newQuote.UserId = author.Id;
+                    newQuote.Username = author.GlobalName;
                     newQuote.Link = message.JumpLink.ToString();
                     if (attachments.Count > 0)
                     {
@@ -336,6 +339,7 @@ namespace Acorn
                             newQuote.Body += $"\n{attachments[i].Url}";
                         }
                     }
+                    if (newQuote.Body[0] == '\n') { newQuote.Body = newQuote.Body.Substring(1); }
                     quotesUnshuffled.Add(newQuote);
                     quotesShuffled.Insert(random.Next(quotesShuffledI, quotesShuffled.Count), newQuote);
                     WriteToQuotes(quotesUnshuffled);
@@ -438,34 +442,23 @@ namespace Acorn
                 var SearchQuoteTime = System.Diagnostics.Stopwatch.StartNew();
                 Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Searching for quotes.");
 
-                string answer = "";
-
                 if (query.Length < 3)
                 {
                     await context.RespondAsync("Your query must be at least 3 characters long.");
                 }
                 else
                 {
-                    List<Quotes>? quote = null;
-                    using (FileStream readQuotes = File.OpenRead(quotesPath))
-                    {
-                        quote =
-                            JsonSerializer.Deserialize<List<Quotes>>(readQuotes);
-                    }
-
-                    DiscordUser user = null;
-                    DiscordClient client = builder.Build();
                     string error = "";
+                    string answer = "";
                     string username = "";
+                    List<Quotes> quotesUnshuffled = quotesShuffled.OrderBy(o => o.Id).ToList();
 
-                    int[] results = new int[quote.Count];
+                    int[] results = new int[quotesUnshuffled.Count];
                     int resultsI = 0;
-                    string[] currentResult = new string[3];
-                    int highlightStart = 0;
 
-                    for (int i = 0; i < quote.Count; i++)
+                    for (int i = 0; i < quotesUnshuffled.Count; i++)
                     {
-                        if (quote[i].Body.Contains(query, StringComparison.OrdinalIgnoreCase))
+                        if (quotesUnshuffled[i].Body.Contains(query, StringComparison.OrdinalIgnoreCase))
                         {
                             results[resultsI] = i;
                             resultsI++;
@@ -480,22 +473,10 @@ namespace Acorn
 
                         for (int i = 0; i < resultsI; i++)
                         {
-                            try
-                            {
-                                user = client.GetUserAsync(quote[results[i]].UserId).Result;
-                            }
-                            catch (Exception e)
-                            {
-                                if (e is BadRequestException) { error = "\n-# Error: The user ID provided was not valid. Is it stored correctly? Falling back to placeholder name."; }
-                                if (e is ServerErrorException) { error = "\n-# Error: Discord has encountered a server error. Falling back to placeholder name."; }
-                            }
-                            if (error != "") { username = "Someone"; }
-                            else { username = user.GlobalName; }
+                            answer += $"`#{quotesUnshuffled[results[i]].Id}` **{quotesUnshuffled[results[i]].Username}:** ";
 
-                            answer += $"`#{results[i]}` **{username}:** ";
-
-                            if (quote[results[i]].Body.Length <= 30) { answer += $"‘{quote[results[i]].Body}’\n"; }
-                            else { answer += $"‘{quote[results[i]].Body.Substring(0, 29)}…’\n"; }
+                            if (quotesUnshuffled[results[i]].Body.Length <= 51) { answer += $"‘{quotesUnshuffled[results[i]].Body}’\n"; }
+                            else { answer += $"‘{quotesUnshuffled[results[i]].Body.Substring(0, 50)}…’\n"; }
                         }
 
                         await context.RespondAsync(answer);

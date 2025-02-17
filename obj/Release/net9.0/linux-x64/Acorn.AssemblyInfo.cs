@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Acorn")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ba748156515f2ece5c70f285a5ebcb6a1add872")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ca5223e8dba606a0496080c98446a127537d0b7c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Acorn")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Acorn")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
