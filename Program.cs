@@ -344,7 +344,11 @@ namespace Acorn
                     quotesShuffled.Insert(random.Next(quotesShuffledI, quotesShuffled.Count), newQuote);
                     WriteToQuotes(quotesUnshuffled);
 
-                    string answer = "Adding quote:\n\n";
+                    string answer = "Thank you for your ";
+                    if (random.NextDouble() >= 0.5) { answer += "contribution"; }
+                    else answer += "sacrifice";
+
+                    answer += ". Adding quote:\n\n";
                     await context.RespondAsync($"{answer}{PrintQuote(quotesUnshuffled.Count - 1, false)}");
                 }
 
