@@ -366,7 +366,7 @@ namespace Acorn
         ------------*/
         public class HelpCommand
         {
-            [Command("help"), Description("Prints the help article for a given command.")]
+            [Command("h"), TextAlias("help"), Description("Prints the help article for a given command.")]
             public static async ValueTask ExecuteAsync(CommandContext context, [Description("The command which you need help with.")] string command)
             {
                 var HelpTime = System.Diagnostics.Stopwatch.StartNew();
@@ -399,7 +399,7 @@ namespace Acorn
 
         public class QuoteCommand
         {
-            [Command("q"), Description("Prints a random quote from the collection.")]
+            [Command("quote"), TextAlias("q"), Description("Prints a random quote from the collection.")]
             public static async ValueTask ExecuteAsync(CommandContext context)
             {
                 var RandomQuoteTime = System.Diagnostics.Stopwatch.StartNew();
@@ -418,7 +418,7 @@ namespace Acorn
 
         public class SpecificQuoteCommand
         {
-            [Command("sq"), Description("Prints a specified quote from the collection.")]
+            [Command("specificquote"), TextAlias("sq"), Description("Prints a specified quote from the collection.")]
             public static async ValueTask ExecuteAsync(CommandContext context, [Description("The number of the quote you wish to recall.")] string quoteId)
             {
                 var SpecificQuoteTime = System.Diagnostics.Stopwatch.StartNew();
@@ -443,7 +443,7 @@ namespace Acorn
 
         public class SearchQuoteCommand
         {
-            [Command("srchq"), Description("Searches for quotes that match the given query.")]
+            [Command("searchquote"), TextAlias("srchq"), Description("Searches for quotes that match the given query.")]
             public static async ValueTask ExecuteAsync(CommandContext context, [Description("The search query. At least 3 characters long.")] string query)
             {
                 var SearchQuoteTime = System.Diagnostics.Stopwatch.StartNew();
@@ -498,7 +498,7 @@ namespace Acorn
 
         public class CharacterCommand
         {
-            [Command("character"), Description("Prints a randomly-rolled Dungeons and Dragons character block.")]
+            [Command("character"), TextAlias("c"), Description("Prints a randomly-rolled Dungeons and Dragons character block.")]
             public static async ValueTask ExecuteAsync(CommandContext context)
             {
                 var CharacterTime = System.Diagnostics.Stopwatch.StartNew();
@@ -550,7 +550,7 @@ namespace Acorn
 
         public class RollDiceCommand
         {
-            [Command("r"), Description("Rolls n x-sided dice. Example: ‘/r 2d4’. Details: ‘/help r’.")]
+            [Command("roll"), TextAlias("r"), Description("Rolls n x-sided dice. Example: ‘/r 2d4’. Details: ‘/help r’.")]
             public static async ValueTask ExecuteAsync(CommandContext context, [Description("The number of dice to roll and the number of their sides. Example: ‘2d4’.")] string dice)
             {
                 var RollTime = System.Diagnostics.Stopwatch.StartNew();
