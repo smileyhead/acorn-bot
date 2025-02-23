@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Text.Json;
 using System.Linq;
+using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 
 namespace Acorn
 {
@@ -367,7 +368,9 @@ namespace Acorn
         public class HelpCommand
         {
             [Command("h"), Description("Prints the help article for a given command.")]
-            public static async ValueTask ExecuteAsync(CommandContext context, [Description("The command which you need help with.")] string command)
+            public static async ValueTask ExecuteAsync
+                (CommandContext context, 
+                [Description("The command which you need help with."), SlashAutoCompleteProvider<HelpCommandAutoCompleteProvider>] string command)
             {
                 var HelpTime = System.Diagnostics.Stopwatch.StartNew();
                 Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a help article.");
