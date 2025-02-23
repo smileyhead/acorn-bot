@@ -236,9 +236,12 @@ namespace Acorn
                 else { answer += $"{rolls[i]}{separator}"; } //Normal roll
             }
 
-            if (modifierType == '\0') { answer += $"→ {FormatNumber(rolls.Sum())}"; }
-            else if (modifierType == '+') { answer += $"{modifierType} {FormatNumber(modifier)} → {FormatNumber(rolls.Sum() + modifier)}"; }
-            else if (modifierType == '-') { answer += $"{modifierType} {FormatNumber(modifier)} → {FormatNumber(rolls.Sum() - modifier)}"; }
+            if (modifierType != '\0')
+            {
+                if (modifierType == '+') { answer += $"{modifierType} {FormatNumber(modifier)} → {FormatNumber(rolls.Sum() + modifier)}"; }
+                else if (modifierType == '-') { answer += $"{modifierType} {FormatNumber(modifier)} → {FormatNumber(rolls.Sum() - modifier)}"; }
+            }
+            else if (diceN > 1) { answer += $"→ {FormatNumber(rolls.Sum())}"; }
 
             if (emergencyStopActivated) { answer += $"\n-# Note: The rerolling of one or more of these values exceeded 10 tries. For more information, see: `/help r`."; }
             return answer;
