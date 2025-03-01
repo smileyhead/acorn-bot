@@ -266,7 +266,9 @@ namespace Acorn
             // Setup the commands extension
             builder.UseCommands((IServiceProvider serviceProvider, CommandsExtension extension) =>
             {
-                extension.AddCommands([typeof(HelpCommand), typeof(RollDiceCommand), typeof(QuoteCommand), typeof(SpecificQuoteCommand), typeof(CharacterCommand), typeof(SearchQuoteCommand), typeof(AddQuoteMenu)]);
+                extension.AddCommands(
+                    [typeof(HelpCommand), typeof(RollDiceCommand), typeof(QuoteCommand), typeof(SpecificQuoteCommand), typeof(CharacterCommand), 
+                    typeof(FlipCommand), typeof(SearchQuoteCommand), typeof(AddQuoteMenu)]);
                 TextCommandProcessor textCommandProcessor = new(new()
                 {
                     // The default behavior is that the bot reacts to direct
@@ -368,7 +370,7 @@ namespace Acorn
         ------------*/
         public class HelpCommand
         {
-            [Command("h"), Description("Prints the help article for a given command.")]
+            [Command("help"), Description("Prints the help article for a given command.")]
             public static async ValueTask ExecuteAsync
                 (CommandContext context, 
                 [Description("The command which you need help with."), SlashAutoCompleteProvider<HelpCommandAutoCompleteProvider>] string command)
