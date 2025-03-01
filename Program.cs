@@ -638,8 +638,7 @@ namespace Acorn
                 Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Converting a value.");
 
                 bool alreadyAnswered = false;
-                inputValue = inputValue.Replace('.', ',');
-                if (!double.TryParse(inputValue, out double inputDouble))
+                if (!double.TryParse(inputValue, CultureInfo.InvariantCulture, out double inputDouble))
                 {
                     await context.RespondAsync($"Error: The input value could not be parsed.");
                     alreadyAnswered = true;
