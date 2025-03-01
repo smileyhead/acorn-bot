@@ -29,6 +29,6 @@
   },
   {
 	"Command": "convert",
-	"HelpText": "The `/convert` command converts a value between its metric and imperial equivalents. The source and target units must be chosen from a pre-made list.\n\n**Usage:**\n`/convert 20 Celsius → Fahrenheit` returns the value of 20°C converted to °F."
+	"HelpText": "The `/convert` command converts a value between two units of measurement. This command uses version 5.70.0 of the [UnitsNet](<https://github.com/angularsen/UnitsNet/>) library by Andreas Gullberg Larsen. The command takes three arguments: the input number, the source unit, and the target unit. This command supports auto-completion for a limited number of units in the library – when less than 3 characters are typed, a fixed list of common units will be displayed. Units contained in the library but not auto-completed can be used by typing the category name followed by the unit name, and separated by a full stop (you can find the full list of category jsons [here](<https://github.com/angularsen/UnitsNet/tree/master/Common/UnitDefinitions>)).\n\n**Undefined Symbols:** If a unit has no symbol defined, then its internal name will be shown instead.\n\n**Usage:**\n`/convert 20 [🌡️ degrees Celsius (°C)] [🌡️ degrees Fahrenheit (°F)]` (auto-completed) returns the value of 20°C converted to °F.\n`/convert 20 Temperature.DegreeCelsius Temperature.DegreeFahrenheit` (typed manually) returns the value of 20°C converted to °F."
   }
 ]
