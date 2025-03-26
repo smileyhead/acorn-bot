@@ -122,7 +122,7 @@ namespace Acorn
                 RandomQuoteTime.Stop();
                 Console.WriteLine($"  Quote-returning finished in {RandomQuoteTime.ElapsedMilliseconds}ms. Random quote index is now {quotesList.GetShuffledIndex()}.");
                 if (RandomQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a random quote took {RandomQuoteTime.ElapsedMilliseconds}ms."); }
-                
+
                 quotesList.Reshuffle();
             }
         }
