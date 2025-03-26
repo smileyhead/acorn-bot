@@ -1,4 +1,5 @@
-﻿using DSharpPlus;
+﻿using Acorn.AutoCompleteProviders;
+using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Commands.Processors.SlashCommands;

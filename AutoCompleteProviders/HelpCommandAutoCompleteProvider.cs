@@ -2,7 +2,7 @@
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Entities;
 
-namespace Acorn
+namespace Acorn.AutoCompleteProviders
 {
     public class HelpCommandAutoCompleteProvider : IAutoCompleteProvider
     {
