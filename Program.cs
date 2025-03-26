@@ -10,6 +10,7 @@ using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace Acorn
 {
@@ -17,15 +18,23 @@ namespace Acorn
     {
         static string discordTokenPath = "tock.txt";
         static string quotesPath = "quotes.json";
+        static string helpArticlesPath = "help.json";
         static string discordToken = File.ReadLines(discordTokenPath).First();
         static DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
         static DiscordClient debugClient = builder.Build();
         static DiscordChannel debugChannel;
-        //TODO: initialise quotes- and help articles lists
+        static HelpArticlesList helpArticlesList = new(helpArticlesPath);
+        //TODO: initialise quotes lists
+
+        async static void PrintDebugMessage(string message)
+        {
+            await debugChannel.SendMessageAsync(message);
+        }
 
         static async Task Main(string[] args)
         {
             var initTime = System.Diagnostics.Stopwatch.StartNew();
+            debugChannel = debugClient.GetChannelAsync(1337097452859428877).Result;
 
             if (string.IsNullOrEmpty(discordToken))
             {
@@ -51,13 +60,11 @@ namespace Acorn
 
             DiscordActivity status = new("with fire", DiscordActivityType.Playing);
 
-            // Now we connect and log in.
             await client.ConnectAsync(status, DiscordUserStatus.Online);
 
             initTime.Stop();
             PrintDebugMessage($"Initialising finished in {initTime.ElapsedMilliseconds} ms.");
 
-            // And now we wait infinitely so that our bot actually stays connected.
             await Task.Delay(-1);
         }
 
@@ -71,12 +78,14 @@ namespace Acorn
             [AllowedProcessors(typeof(MessageCommandProcessor))]
             public async Task AddQuote(MessageCommandContext context, DiscordMessage message)
             {
-                //TODO: timer start
+                var AddQuoteTime = System.Diagnostics.Stopwatch.StartNew();
 
                 //TODO: call quotelist.add routine
                 //TODO: answer with the newest quote
 
-                //TODO: timer stop
+                AddQuoteTime.Stop();
+                Console.WriteLine($"  Quote-adding finished in {AddQuoteTime.ElapsedMilliseconds}ms.");
+                if (AddQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Adding a quote took {AddQuoteTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -90,11 +99,14 @@ namespace Acorn
                 (CommandContext context,
                 [Description("The command which you need help with."), SlashAutoCompleteProvider<HelpCommandAutoCompleteProvider>] string command)
             {
-                //TODO: timer start
+                var HelpTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a help article.");
 
-                //TODO: return with the relevant help article
+                await context.RespondAsync(helpArticlesList.GetHelp(command));
 
-                //TODO: timer stop
+                HelpTime.Stop();
+                Console.WriteLine($"  Help article-returning finished in {HelpTime.ElapsedMilliseconds}ms.");
+                if (HelpTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a help article took {HelpTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -103,12 +115,15 @@ namespace Acorn
             [Command("quote"), Description("Prints a random quote from the collection.")]
             public static async ValueTask ExecuteAsync(CommandContext context)
             {
-                //TODO: timer start
+                var RandomQuoteTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a random quote.");
 
                 //TODO: return random quote
                 //make sure the above has a subroutine to reshuffle if needed
 
-                //TODO: timer stop
+                RandomQuoteTime.Stop();
+                Console.WriteLine($"  Quote-returning finished in {RandomQuoteTime.ElapsedMilliseconds}ms. Random quote index is now {quotesShuffledI}.");
+                if (RandomQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a random quote took {RandomQuoteTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -117,11 +132,14 @@ namespace Acorn
             [Command("specificquote"), Description("Prints a specified quote from the collection.")]
             public static async ValueTask ExecuteAsync(CommandContext context, [Description("The number of the quote you wish to recall.")] string quoteId)
             {
-                //TODO: timer start
+                var SpecificQuoteTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a specific quote.");
 
                 //TODO: return specific quote
 
-                //TOD: timer stop
+                //TOD: timer stopSpecificQuoteTime.Stop();
+                Console.WriteLine($"  Quote-returning finished in {SpecificQuoteTime.ElapsedMilliseconds}ms.");
+                if (SpecificQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a quote took {SpecificQuoteTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -130,11 +148,14 @@ namespace Acorn
             [Command("searchquote"), Description("Searches for quotes that match the given query.")]
             public static async ValueTask ExecuteAsync(CommandContext context, [Description("The search query. At least 3 characters long.")] string query)
             {
-                //TODO: timer start
+                var SearchQuoteTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Searching for quotes.");
 
                 //TODO: return search results
 
-                //TODO: timer stop
+                SearchQuoteTime.Stop();
+                Console.WriteLine($"  Quote-searching finished in {SearchQuoteTime.ElapsedMilliseconds}ms.");
+                if (SearchQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Searching for quotes took {SearchQuoteTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -143,11 +164,14 @@ namespace Acorn
             [Command("character"), Description("Prints a randomly-rolled Dungeons and Dragons character block.")]
             public static async ValueTask ExecuteAsync(CommandContext context)
             {
-                //TODO: timer start
+                var CharacterTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Generating a character.");
 
                 //TODO: roll character
 
-                //TODO: timer stop
+                CharacterTime.Stop();
+                Console.WriteLine($"  Character-generating finished in {CharacterTime.ElapsedMilliseconds}ms.");
+                if (CharacterTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Generating a character took {CharacterTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -156,11 +180,14 @@ namespace Acorn
             [Command("roll"), Description("Rolls n x-sided dice. Example: ‘/r 2d4’. Details: ‘/help r’.")]
             public static async ValueTask ExecuteAsync(CommandContext context, [Description("The number of dice to roll and the number of their sides. Example: ‘2d4’.")] string dice)
             {
-                //TODO: timer start
+                var RollTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Rolling dice.");
 
                 //TODO: roll dice
 
-                //TODO: timer stop
+                RollTime.Stop();
+                Console.WriteLine($"  Character-generating finished in {RollTime.ElapsedMilliseconds}ms.");
+                if (RollTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Generating a character took {RollTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -169,11 +196,14 @@ namespace Acorn
             [Command("flip"), Description("Flips a coin.")]
             public static async ValueTask ExecuteAsync(CommandContext context)
             {
-                //TODO: timer start
+                var FlipTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Flipping a coin.");
 
                 //TODO: flip coin
 
-                //TODO: timer stop
+                //TODO: timer stopFlipTime.Stop();
+                Console.WriteLine($"  Coin-flipping finished in {FlipTime.ElapsedMilliseconds}ms.");
+                if (FlipTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Flipping a coin took {FlipTime.ElapsedMilliseconds}ms."); }
             }
         }
 
@@ -185,11 +215,14 @@ namespace Acorn
                 [Description("The unit you with to convert from."), SlashAutoCompleteProvider<ConvertCommandAutoCompleteProvider>] string inputUnit,
                 [Description("The unit you wish to convert to."), SlashAutoCompleteProvider<ConvertCommandAutoCompleteProvider>] string outputUnit)
             {
-                //TODO: timer start
+                var ConvertTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Converting a value.");
 
                 //TODO: convert
 
-                //TODO: timer stop
+                ConvertTime.Stop();
+                Console.WriteLine($"  Value-converting finished in {ConvertTime.ElapsedMilliseconds}ms.");
+                if (ConvertTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Converting a value took {ConvertTime.ElapsedMilliseconds}ms."); }
             }
         }
     }
