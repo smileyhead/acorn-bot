@@ -13,4 +13,13 @@
     <PackageReference Include="UnitsNet" Version="5.70.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="help.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="quotes.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
