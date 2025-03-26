@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.Json;
-using Acorn_old;
+﻿using System.Text.Json;
 
 namespace Acorn
 {
@@ -23,7 +17,7 @@ namespace Acorn
             }
         }
 
-        public string GetHelp (string command)
+        public string GetHelp(string command)
         {
             string answer = "";
 

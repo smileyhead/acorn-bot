@@ -221,7 +221,8 @@ namespace Acorn
                 var ConvertTime = System.Diagnostics.Stopwatch.StartNew();
                 Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Converting a value.");
 
-                //TODO: convert
+                Convert convert = new();
+                await context.RespondAsync(convert.DoConvert(inputValue, inputUnit, outputUnit));
 
                 ConvertTime.Stop();
                 Console.WriteLine($"  Value-converting finished in {ConvertTime.ElapsedMilliseconds}ms.");
