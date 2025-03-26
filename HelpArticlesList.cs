@@ -10,15 +10,15 @@ namespace Acorn
 {
     internal class HelpArticlesList
     {
-        private List<HelpArticle> articles;
+        private List<HelpArticle> Articles;
 
         public HelpArticlesList(string helpArticlesPath)
         {
-            articles = new List<HelpArticle>();
+            Articles = new List<HelpArticle>();
 
             using (FileStream readHelpArticles = File.OpenRead(helpArticlesPath))
             {
-                articles =
+                Articles =
                     JsonSerializer.Deserialize<List<HelpArticle>>(readHelpArticles);
             }
         }
@@ -27,11 +27,11 @@ namespace Acorn
         {
             string answer = "";
 
-            for (int i = 0; i < articles.Count; i++)
+            for (int i = 0; i < Articles.Count; i++)
             {
-                if (command == articles[i].Command) { answer = articles[i].HelpText; break; }
+                if (command == Articles[i].Command) { answer = Articles[i].HelpText; break; }
 
-                if (i == articles.Count - 1) { answer = "Command not found."; break; }
+                if (i == Articles.Count - 1) { answer = "Command not found."; break; }
             }
 
             return answer;

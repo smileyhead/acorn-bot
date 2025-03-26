@@ -24,7 +24,7 @@ namespace Acorn
         static DiscordClient debugClient = builder.Build();
         static DiscordChannel debugChannel;
         static HelpArticlesList helpArticlesList = new(helpArticlesPath);
-        //TODO: initialise quotes lists
+        static QuotesList quotesList = new(debugClient, quotesPath);
 
         async static void PrintDebugMessage(string message)
         {
@@ -80,8 +80,7 @@ namespace Acorn
             {
                 var AddQuoteTime = System.Diagnostics.Stopwatch.StartNew();
 
-                //TODO: call quotelist.add routine
-                //TODO: answer with the newest quote
+                await context.RespondAsync(quotesList.Add(context, message));
 
                 AddQuoteTime.Stop();
                 Console.WriteLine($"  Quote-adding finished in {AddQuoteTime.ElapsedMilliseconds}ms.");
@@ -118,12 +117,13 @@ namespace Acorn
                 var RandomQuoteTime = System.Diagnostics.Stopwatch.StartNew();
                 Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a random quote.");
 
-                //TODO: return random quote
-                //make sure the above has a subroutine to reshuffle if needed
+                await context.RespondAsync(quotesList.Print("", true));
 
                 RandomQuoteTime.Stop();
-                Console.WriteLine($"  Quote-returning finished in {RandomQuoteTime.ElapsedMilliseconds}ms. Random quote index is now {quotesShuffledI}.");
+                Console.WriteLine($"  Quote-returning finished in {RandomQuoteTime.ElapsedMilliseconds}ms. Random quote index is now {quotesList.GetShuffledIndex()}.");
                 if (RandomQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a random quote took {RandomQuoteTime.ElapsedMilliseconds}ms."); }
+                
+                quotesList.Reshuffle();
             }
         }
 
@@ -135,9 +135,9 @@ namespace Acorn
                 var SpecificQuoteTime = System.Diagnostics.Stopwatch.StartNew();
                 Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a specific quote.");
 
-                //TODO: return specific quote
+                await context.RespondAsync(quotesList.Print(quoteId, false));
 
-                //TOD: timer stopSpecificQuoteTime.Stop();
+                SpecificQuoteTime.Stop();
                 Console.WriteLine($"  Quote-returning finished in {SpecificQuoteTime.ElapsedMilliseconds}ms.");
                 if (SpecificQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a quote took {SpecificQuoteTime.ElapsedMilliseconds}ms."); }
             }
@@ -151,7 +151,7 @@ namespace Acorn
                 var SearchQuoteTime = System.Diagnostics.Stopwatch.StartNew();
                 Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Searching for quotes.");
 
-                //TODO: return search results
+                await context.RespondAsync(quotesList.Search(query));
 
                 SearchQuoteTime.Stop();
                 Console.WriteLine($"  Quote-searching finished in {SearchQuoteTime.ElapsedMilliseconds}ms.");

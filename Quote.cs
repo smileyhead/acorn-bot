@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Acorn
+﻿namespace Acorn
 {
-    internal class Quote
+    internal record Quote
     {
+        public int Id;
+        public string? Body;
+        public ulong UserId;
+        public string? Username;
+        public string? Link;
     }
 }
