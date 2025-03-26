@@ -167,7 +167,8 @@ namespace Acorn
                 var CharacterTime = System.Diagnostics.Stopwatch.StartNew();
                 Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Generating a character.");
 
-                //TODO: roll character
+                Character character = new();
+                await context.RespondAsync(character.Roll());
 
                 CharacterTime.Stop();
                 Console.WriteLine($"  Character-generating finished in {CharacterTime.ElapsedMilliseconds}ms.");
