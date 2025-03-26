@@ -2,7 +2,6 @@
 using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
-using System;
 using System.Text.Json;
 
 namespace Acorn

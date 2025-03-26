@@ -184,7 +184,8 @@ namespace Acorn
                 var RollTime = System.Diagnostics.Stopwatch.StartNew();
                 Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Rolling dice.");
 
-                //TODO: roll dice
+                Dice dice_command = new();
+                await context.RespondAsync(dice_command.Roll(dice));
 
                 RollTime.Stop();
                 Console.WriteLine($"  Character-generating finished in {RollTime.ElapsedMilliseconds}ms.");
