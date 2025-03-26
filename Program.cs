@@ -201,9 +201,10 @@ namespace Acorn
                 var FlipTime = System.Diagnostics.Stopwatch.StartNew();
                 Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Flipping a coin.");
 
-                //TODO: flip coin
+                Flip flip = new();
+                await context.RespondAsync(flip.DoFlip());
 
-                //TODO: timer stopFlipTime.Stop();
+                FlipTime.Stop();
                 Console.WriteLine($"  Coin-flipping finished in {FlipTime.ElapsedMilliseconds}ms.");
                 if (FlipTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Flipping a coin took {FlipTime.ElapsedMilliseconds}ms."); }
             }
