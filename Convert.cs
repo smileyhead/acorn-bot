@@ -21,7 +21,7 @@ namespace Acorn
 
             string[] outputUnitSplit = outputUnit.Split('.');
             IQuantity? outputQuantity = null;
-            if (Quantity.TryFrom(value: 0, quantityName: outputUnitSplit[0], unitName: outputUnitSplit[1], out outputQuantity))
+            if (!Quantity.TryFrom(value: 0, quantityName: outputUnitSplit[0], unitName: outputUnitSplit[1], out outputQuantity))
             {
                 return $"Error: The output type `{outputUnit}` is invalid.";
             }
