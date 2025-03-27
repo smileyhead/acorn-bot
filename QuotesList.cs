@@ -111,6 +111,11 @@ namespace Acorn
                 Console.WriteLine("  Error: Quote exists.");
                 return "This quote already exists!";
             }
+            else if (message.Author.Id == 1335008063589191721)
+            {
+                Console.WriteLine("  Error: Quoting self.");
+                return "I'm sorry, but I can't quote myself – I don't want to sound arrogant!";
+            }
             else
             {
                 Random random = new();
