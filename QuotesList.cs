@@ -161,7 +161,8 @@ namespace Acorn
         private void WriteToFile(List<Quote> quote)
         {
             using FileStream writeQuotes = File.Create(QuotesPath);
-            JsonSerializer.Serialize(writeQuotes, quote);
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            JsonSerializer.Serialize(writeQuotes, quote, options);
         }
 
         public DiscordMessageBuilder Print(string id_input, bool isShuffled)
