@@ -11,7 +11,6 @@ namespace Acorn
         private static List<Quote> Quotes;
         private static int ShuffledIndex;
         private static string QuotesPath;
-        private static List<User> Users;
 
         public QuotesList(DiscordClient client, string quotesPath)
         {
@@ -29,7 +28,7 @@ namespace Acorn
                 Quotes = JsonSerializer.Deserialize<List<Quote>>(readQuotes);
             }
 
-            Console.Write("  Getting number of unique user IDs in quotes list. ");
+            Console.Write("  Getting the number of unique users. ");
             usersI = Quotes.Select(x => x.UserId).Distinct().Count();
             ulong[] distinctUserIds = new ulong[usersI];
             distinctUserIds = Quotes.Select(x => x.UserId).Distinct().ToArray();
@@ -49,7 +48,8 @@ namespace Acorn
                     if (e is ServerErrorException) { error = 2; }
                 }
                 if (error != 0) { distinctUsernames[i] = "Someone"; }
-                else { distinctUsernames[i] = discordUser.GlobalName; }
+                else if (discordUser.GlobalName is null) distinctUsernames[i] = discordUser.Username; //Fall back to username if global nickname isn't present
+                else distinctUsernames[i] = discordUser.GlobalName;
             }
 
             DiscordChannel debugChannel = client.GetChannelAsync(1337097452859428877).Result;
@@ -57,7 +57,7 @@ namespace Acorn
             if (error == 1) { debugChannel.SendMessageAsync($"While caching a user ID, one or more of them turned out to be invalid. Index: {invalidUserId}"); }
             if (error == 2) { debugChannel.SendMessageAsync($"The Discord API has encountered an error, so one or more global nicknames have been set to Someone. Index: {erroredUserId}"); }
 
-            Console.WriteLine("  Filling up quotes lists with queried names.");
+            Console.WriteLine("  Filling up quotes list with queried names.");
             for (int i = 0; i < distinctUsernames.Count(); i++)
             {
                 for (int j = 0; j < Quotes.Count; j++)
@@ -124,7 +124,8 @@ namespace Acorn
                 newQuote.Id = Quotes.Count;
                 newQuote.Body = message.Content;
                 newQuote.UserId = author.Id;
-                newQuote.Username = author.GlobalName;
+                if (author.GlobalName is null) newQuote.Username = author.Username; //Fall back to username if global nickname isn't present
+                else newQuote.Username = author.GlobalName;
                 newQuote.Link = message.JumpLink.ToString();
                 if (attachments.Count > 0)
                 {
