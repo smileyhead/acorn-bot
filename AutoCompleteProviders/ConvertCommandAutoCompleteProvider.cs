@@ -495,7 +495,7 @@ namespace Acorn.AutoCompleteProviders
                 new DiscordAutoCompleteChoice("📐 square miles (mi²)", "Area.SquareMile")
             ];
 
-            if (context.UserInput.Length < 3)
+            if (context.UserInput.Length < 2)
             {
                 return ValueTask.FromResult(mostUsed);
             }
