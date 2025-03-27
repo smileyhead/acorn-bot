@@ -79,12 +79,31 @@ namespace Acorn
             public async Task AddQuote(MessageCommandContext context, DiscordMessage message)
             {
                 var AddQuoteTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine("Adding a quote.");
 
                 await context.RespondAsync(quotesList.Add(context, message));
 
                 AddQuoteTime.Stop();
                 Console.WriteLine($"  Quote-adding finished in {AddQuoteTime.ElapsedMilliseconds}ms.");
                 if (AddQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Adding a quote took {AddQuoteTime.ElapsedMilliseconds}ms."); }
+            }
+        }
+
+        public class UndoAddQuoteMenu
+        {
+            [Command("Undo Last Quote")]
+            [SlashCommandTypes(DiscordApplicationCommandType.MessageContextMenu)]
+            [AllowedProcessors(typeof(MessageCommandProcessor))]
+            public async Task UndoAddQuote(MessageCommandContext context)
+            {
+                var UndoAddQuoteTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine("Undoing the last quote.");
+
+                await context.RespondAsync(quotesList.Undo(context));
+
+                UndoAddQuoteTime.Stop();
+                Console.WriteLine($"  Quote-undoing finished in {UndoAddQuoteTime.ElapsedMilliseconds}ms.");
+                if (UndoAddQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Undoing a quote took {UndoAddQuoteTime.ElapsedMilliseconds}ms."); }
             }
         }
 

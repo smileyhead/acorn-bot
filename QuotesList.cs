@@ -12,6 +12,7 @@ namespace Acorn
         private static List<Quote> Quotes;
         private static int ShuffledIndex;
         private static string QuotesPath;
+        private static ulong? LastQuoter;
 
         public QuotesList(DiscordClient client, string quotesPath)
         {
@@ -154,6 +155,8 @@ namespace Acorn
                 if (random.NextDouble() >= 0.5) { answer += "contribution"; }
                 else answer += "sacrifice";
 
+                LastQuoter = context.User.Id;
+
                 answer += ". Adding quote:\n\n";
                 return $"{answer}{Print((quotesUnshuffled.Count - 1).ToString(), false)}";
             }
@@ -164,6 +167,35 @@ namespace Acorn
             using FileStream writeQuotes = File.Create(QuotesPath);
             var options = new JsonSerializerOptions { WriteIndented = true };
             JsonSerializer.Serialize(writeQuotes, quote, options);
+        }
+
+        public string Undo(MessageCommandContext context)
+        {
+            if (LastQuoter == null)
+            {
+                Console.WriteLine("  Last quoter is null.");
+                return "I'm sorry, but only the most recently added quote may be undone.";
+            }
+            else if (context.User.Id != LastQuoter)
+            {
+                Console.WriteLine("  Command user / Last quoter mismatch.");
+                return "I'm sorry, but only the person who added the last quote may undo it.";
+            }
+            else
+            {
+                RestoreBackup();
+                LastQuoter = null; //Prevent any further undo operations.
+                return $"Quoting undone. The most recent quote is now `#{Quotes.Count - 1}`.";
+            }
+        }
+
+        private void RestoreBackup()
+        {
+            var directory = new DirectoryInfo("backup/");
+            var latestBackup = directory.GetFiles().OrderByDescending(f => f.LastWriteTime).First();
+            File.Move($"quotes/{latestBackup.Name}", "quotes.json", true);
+
+            Quotes.Remove(Quotes.OrderByDescending(q => q.Id).First());
         }
 
         public DiscordMessageBuilder Print(string id_input, bool isShuffled)
