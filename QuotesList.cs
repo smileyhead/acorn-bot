@@ -11,6 +11,7 @@ namespace Acorn
         private static List<Quote> Quotes;
         private static int ShuffledIndex;
         private static string QuotesPath;
+        private static List<User> Users;
 
         public QuotesList(DiscordClient client, string quotesPath)
         {
@@ -34,9 +35,6 @@ namespace Acorn
             distinctUserIds = Quotes.Select(x => x.UserId).Distinct().ToArray();
             string[] distinctUsernames = new string[usersI];
             Console.WriteLine($"Result: {usersI}");
-
-            Console.WriteLine("  Filling up the users list.");
-            List<User> user = new List<User>();
 
             Console.Write("  Querying the API for global nicknames. ");
             for (int i = 0; i < usersI; i++)
