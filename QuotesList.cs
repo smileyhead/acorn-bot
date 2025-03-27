@@ -116,6 +116,11 @@ namespace Acorn
                 Console.WriteLine("  Error: Quoting self.");
                 return "I'm sorry, but I can't quote myself – I don't want to sound arrogant!";
             }
+            else if (message.Stickers is not null)
+            {
+                Console.WriteLine("  Error: Message has sticker.");
+                return "I'm sorry, but due to Discord's limitations, I can't quote a sticker.\nIf you still wish to quote this message, consider taking a screenshot of it.";
+            }
             else
             {
                 Random random = new();
@@ -159,10 +164,10 @@ namespace Acorn
             JsonSerializer.Serialize(writeQuotes, quote);
         }
 
-        public string Print(string id_input, bool isShuffled)
+        public DiscordMessageBuilder Print(string id_input, bool isShuffled)
         {
             Console.WriteLine("  Printing a quote.");
-            string answer = "";
+            string messageContent = "";
             int id = 0;
 
             if (isShuffled) id = ShuffledIndex;
@@ -171,22 +176,23 @@ namespace Acorn
                 if (id_input[0] == '#') { id_input = id_input.Remove(0, 1); }
 
                 if (id_input.ToLower() == "latest") { id = Quotes.Count - 1; }
-                else if (!Int32.TryParse(id_input, out id)) { answer = "Error: Invalid format. For help, see: `/help sq`."; }
-                else if (id < 0 || id > Quotes.Count() - 1) { answer = "Error: The specified number falls outside the accepted range. For help, see: `/help sq`."; }
+                else if (!Int32.TryParse(id_input, out id)) { messageContent = "Error: Invalid format. For help, see: `/help sq`."; }
+                else if (id < 0 || id > Quotes.Count() - 1) { messageContent = "Error: The specified number falls outside the accepted range. For help, see: `/help sq`."; }
             }
 
             List<Quote> quotesList = Quotes;
             if (!isShuffled) { quotesList = Quotes.OrderBy(o => o.Id).ToList(); Console.WriteLine("    Unshuffled quotes list created."); }
 
-            answer += $"`#{quotesList[id].Id}` **{quotesList[id].Username}** [said]({quotesList[id].Link}):";
+            messageContent += $"`#{quotesList[id].Id}` **{quotesList[id].Username}** [said]({quotesList[id].Link}):";
             string[] bodySplit = quotesList[id].Body.Split('\n');
             for (int i = 0; i < bodySplit.Count(); i++)
             {
-                answer += $"\n> {bodySplit[i]}";
+                messageContent += $"\n> {bodySplit[i]}";
             }
 
             if (isShuffled) ShuffledIndex++;
-            return answer;
+
+            return new DiscordMessageBuilder().WithContent(messageContent);
         }
 
         public string Search(string query)
