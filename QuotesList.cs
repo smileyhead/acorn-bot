@@ -3,6 +3,7 @@ using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Acorn
 {
@@ -231,13 +232,47 @@ namespace Acorn
                     {
                         answer += $"`#{quotesUnshuffled[results[i]].Id}` **{quotesUnshuffled[results[i]].Username}:** ";
 
-                        if (quotesUnshuffled[results[i]].Body.Length <= 51) { answer += $"‘{quotesUnshuffled[results[i]].Body}’\n"; }
-                        else { answer += $"‘{quotesUnshuffled[results[i]].Body.Substring(0, 50)}…’\n"; }
+                        if (quotesUnshuffled[results[i]].Body.Length <= 51) { answer += $"‘{FlushFormatting(quotesUnshuffled[results[i]].Body)}’\n"; }
+                        else if (quotesUnshuffled[results[i]].Body.IndexOf(query) < 25)
+                        { answer += $"‘{FlushFormatting(quotesUnshuffled[results[i]].Body.Substring(0, 50))}…’\n"; }
+                        else
+                        {
+                            int startI = quotesUnshuffled[results[i]].Body.IndexOf(query) - 10;
+                            if (quotesUnshuffled[results[i]].Body.Length - startI <= 51) { answer += $"‘…{FlushFormatting(quotesUnshuffled[results[i]].Body.Substring(startI))}’\n"; }
+                            else
+                            {
+                                int endI = startI + 50;
+                                answer += $"‘…{FlushFormatting(quotesUnshuffled[results[i]].Body.Substring(startI, endI))}…’\n";
+                            }
+                        }
+                    }
+
+                    if (answer.Length > 2000)
+                    {
+                        string append = "-# Not all results can be displayed. Character limit reached.";
+
+                        while (answer.Length > answer.Length + append.Length)
+                        {
+                            answer = ShortenAnswer(answer);
+                        }
+
+                        answer += append;
                     }
 
                     return answer;
                 }
             }
         }
+
+        private string FlushFormatting(string input)
+        {
+            string pattern = "([*_~#`]|http)";
+            string replacement = "\\$1";
+            Regex regex = new Regex(pattern);
+
+            return regex.Replace(input, replacement);
+        }
+
+        private string ShortenAnswer(string input) { return input.Remove(input.LastIndexOf('\n') + 1); }
     }
 }
