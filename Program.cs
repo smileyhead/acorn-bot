@@ -52,7 +52,7 @@ namespace Acorn
                     typeof(Commands_Slash.SpecificQuoteCommand), typeof(Commands_Slash.CharacterCommand), typeof(Commands_Slash.FlipCommand),
                     typeof(Commands_Slash.ConvertCommand), typeof(Commands_Slash.SearchQuoteCommand),
                     typeof(Commands_ContextMenu.AddQuoteMenu), typeof(Commands_ContextMenu.UndoAddQuoteMenu),
-                    typeof(Commands_Text.MessageCommand)]);
+                    typeof(Commands_Text.MessageCommand), typeof(Commands_Text.ReplyToCommand)]);
                 TextCommandProcessor textCommandProcessor = new(new()
                 {
                     PrefixResolver = new DefaultPrefixResolver(false, ".").ResolvePrefixAsync,

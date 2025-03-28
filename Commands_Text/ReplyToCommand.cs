@@ -6,7 +6,7 @@ using DSharpPlus.Entities;
 
 namespace Acorn.Commands_Text
 {
-    public static class MessageCommand
+    public static class ReplyToCommand
     {
         [Command("message"), AllowedProcessors<TextCommandProcessor>()]
         public static async ValueTask ExecuteAsync(CommandContext context, [RemainingText] string input)
@@ -14,9 +14,12 @@ namespace Acorn.Commands_Text
             ulong channelId = ulong.Parse(input.Substring(0, input.IndexOf(' ')));
             input = input.Remove(0, input.IndexOf(" ") + 1);
 
+            ulong messageId = ulong.Parse(input.Substring(0, input.IndexOf(' ')));
+            input = input.Remove(0, input.IndexOf(" ") + 1);
+
             DiscordChannel channel = await Program.debugClient.GetChannelAsync(channelId);
 
-            var message = await new DiscordMessageBuilder().WithContent(input).SendAsync(channel);
+            var reply = await new DiscordMessageBuilder().WithContent(input).WithReply(messageId).SendAsync(channel);
         }
     }
 }
