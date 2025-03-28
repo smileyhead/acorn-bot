@@ -1,6 +1,8 @@
 ﻿using Acorn.AutoCompleteProviders;
 using DSharpPlus;
 using DSharpPlus.Commands;
+using DSharpPlus.Commands.ArgumentModifiers;
+using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
@@ -9,6 +11,7 @@ using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
+using Polly.CircuitBreaker;
 using System.ComponentModel;
 using System.Globalization;
 
@@ -47,7 +50,8 @@ namespace Acorn
             {
                 extension.AddCommands(
                     [typeof(HelpCommand), typeof(RollDiceCommand), typeof(QuoteCommand), typeof(SpecificQuoteCommand), typeof(CharacterCommand),
-                    typeof(FlipCommand), typeof(ConvertCommand), typeof(SearchQuoteCommand), typeof(AddQuoteMenu)]);
+                    typeof(FlipCommand), typeof(ConvertCommand), typeof(SearchQuoteCommand), typeof(AddQuoteMenu),
+                    typeof(MessageCommand)]);
                 TextCommandProcessor textCommandProcessor = new(new()
                 {
                     PrefixResolver = new DefaultPrefixResolver(false, ".").ResolvePrefixAsync,
@@ -264,6 +268,23 @@ namespace Acorn
                 ConvertTime.Stop();
                 Console.WriteLine($"  Value-converting finished in {ConvertTime.ElapsedMilliseconds}ms.");
                 if (ConvertTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Converting a value took {ConvertTime.ElapsedMilliseconds}ms."); }
+            }
+        }
+
+        /*-----------
+        Text Commands
+        -----------*/
+        public static class MessageCommand
+        {
+            [Command("message"), AllowedProcessors<TextCommandProcessor>()]
+            public static async ValueTask ExecuteAsync(CommandContext context, [RemainingText] string input)
+            {
+                string channelId = input.Substring(0, input.IndexOf(' '));
+                input = input.Remove(0, input.IndexOf(" ") + 1);
+
+                DiscordChannel channel = await debugClient.GetChannelAsync(ulong.Parse(channelId));
+
+                var message = await new DiscordMessageBuilder().WithContent(input).SendAsync(channel);
             }
         }
     }
