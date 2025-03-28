@@ -8,7 +8,7 @@ namespace Acorn.Commands_Text
 {
     public static class ReplyToCommand
     {
-        [Command("message"), AllowedProcessors<TextCommandProcessor>()]
+        [Command("replyto"), AllowedProcessors<TextCommandProcessor>()]
         public static async ValueTask ExecuteAsync(CommandContext context, [RemainingText] string input)
         {
             ulong channelId = ulong.Parse(input.Substring(0, input.IndexOf(' ')));
