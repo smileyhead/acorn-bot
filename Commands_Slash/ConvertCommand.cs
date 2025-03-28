@@ -3,6 +3,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using System.ComponentModel;
 using System.Globalization;
+using UnitsNet;
 
 namespace Acorn.Commands_Slash
 {
@@ -17,8 +18,48 @@ namespace Acorn.Commands_Slash
             var ConvertTime = System.Diagnostics.Stopwatch.StartNew();
             Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Converting a value.");
 
-            Classes.Convert convert = new();
-            await context.RespondAsync(convert.DoConvert(inputValue, inputUnit, outputUnit));
+            bool alreadyAnswered = false;
+
+            if (!double.TryParse(inputValue, CultureInfo.InvariantCulture, out double inputDouble))
+            {
+                await context.RespondAsync($"Error: The input value could not be parsed.");
+                alreadyAnswered = true;
+            }
+
+            string[] inputUnitSplit = inputUnit.Split('.');
+            IQuantity? inputQuantity = null;
+            if (!alreadyAnswered && !Quantity.TryFrom(value: inputDouble, quantityName: inputUnitSplit[0], unitName: inputUnitSplit[1], out inputQuantity))
+            {
+                await context.RespondAsync($"Error: The input type `{inputUnit}` is invalid.");
+                alreadyAnswered = true;
+            }
+
+            string[] outputUnitSplit = outputUnit.Split('.');
+            IQuantity? outputQuantity = null;
+            if (!alreadyAnswered && !Quantity.TryFrom(value: 0, quantityName: outputUnitSplit[0], unitName: outputUnitSplit[1], out outputQuantity))
+            {
+                await context.RespondAsync($"Error: The output type `{outputUnit}` is invalid.");
+                alreadyAnswered = true;
+            }
+
+            if (!alreadyAnswered && inputQuantity.QuantityInfo.UnitType != outputQuantity.QuantityInfo.UnitType)
+            {
+                await context.RespondAsync($"Error: The input and output categories `{inputQuantity.QuantityInfo.UnitType}`, `{outputQuantity.QuantityInfo.UnitType}` do not match.");
+                alreadyAnswered = true;
+            }
+
+            else if (!alreadyAnswered)
+            {
+                string inputNumberFormatted = inputQuantity.ToString("G2", CultureInfo.CreateSpecificCulture("en-US"));
+                string outputNumberFormatted = inputQuantity.ToUnit(outputQuantity.Unit).ToString("G2", CultureInfo.CreateSpecificCulture("en-US"));
+
+                if (char.IsDigit(inputNumberFormatted[inputNumberFormatted.Length - 1])) { inputNumberFormatted += $" {inputUnitSplit[1]}"; }
+                if (char.IsDigit(outputNumberFormatted[outputNumberFormatted.Length - 1])) { outputNumberFormatted += $" {outputUnitSplit[1]}"; }
+
+                string answer = $"**{inputNumberFormatted}** equals **{outputNumberFormatted}**.";
+
+                await context.RespondAsync(answer);
+            }
 
             ConvertTime.Stop();
             Console.WriteLine($"  Value-converting finished in {ConvertTime.ElapsedMilliseconds}ms.");
