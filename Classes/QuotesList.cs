@@ -1,11 +1,12 @@
-﻿using DSharpPlus;
+﻿using Acorn.Records;
+using DSharpPlus;
 using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace Acorn
+namespace Acorn.Classes
 {
     internal class QuotesList
     {
@@ -223,7 +224,7 @@ namespace Acorn
                 if (id_input[0] == '#') { id_input = id_input.Remove(0, 1); }
 
                 if (id_input.ToLower() == "latest") { id = Quotes.Count - 1; }
-                else if (!Int32.TryParse(id_input, out id)) { messageContent = "Error: Invalid format. For help, see: `/help sq`."; }
+                else if (!int.TryParse(id_input, out id)) { messageContent = "Error: Invalid format. For help, see: `/help sq`."; }
                 else if (id < 0 || id > Quotes.Count() - 1) { messageContent = "Error: The specified number falls outside the accepted range. For help, see: `/help sq`."; }
             }
 

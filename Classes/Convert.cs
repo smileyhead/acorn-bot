@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using UnitsNet;
 
-namespace Acorn
+namespace Acorn.Classes
 {
     internal class Convert
     {

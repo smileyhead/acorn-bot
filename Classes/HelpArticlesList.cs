@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
+﻿using Acorn.Records;
+using System.Text.Json;
 
-namespace Acorn
+namespace Acorn.Classes
 {
     internal class HelpArticlesList
     {

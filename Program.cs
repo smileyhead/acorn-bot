@@ -1,8 +1,8 @@
 ﻿using Acorn.AutoCompleteProviders;
+using Acorn.Classes;
 using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.ArgumentModifiers;
-using DSharpPlus.Commands.ContextChecks;
 using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
@@ -11,7 +11,6 @@ using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using DSharpPlus.Commands.Trees;
 using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
-using Polly.CircuitBreaker;
 using System.ComponentModel;
 using System.Globalization;
 
@@ -24,12 +23,12 @@ namespace Acorn
         static string helpArticlesPath = "help.json";
         static string discordToken = File.ReadLines(discordTokenPath).First();
         static DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
-        static DiscordClient debugClient = builder.Build();
+        public static DiscordClient debugClient = builder.Build();
         static DiscordChannel debugChannel;
-        static HelpArticlesList helpArticlesList = new(helpArticlesPath);
+        public static HelpArticlesList helpArticlesList = new(helpArticlesPath);
         public static QuotesList quotesList = new(debugClient, quotesPath);
 
-        async static void PrintDebugMessage(string message)
+        public async static void PrintDebugMessage(string message)
         {
             await debugChannel.SendMessageAsync(message);
         }
@@ -49,9 +48,11 @@ namespace Acorn
             builder.UseCommands((IServiceProvider serviceProvider, CommandsExtension extension) =>
             {
                 extension.AddCommands(
-                    [typeof(HelpCommand), typeof(RollDiceCommand), typeof(QuoteCommand), typeof(SpecificQuoteCommand), typeof(CharacterCommand),
-                    typeof(FlipCommand), typeof(ConvertCommand), typeof(SearchQuoteCommand), typeof(AddQuoteMenu),
-                    typeof(MessageCommand)]);
+                    [typeof(Commands_Slash.HelpCommand), typeof(Commands_Slash.RollDiceCommand), typeof(Commands_Slash.QuoteCommand),
+                    typeof(Commands_Slash.SpecificQuoteCommand), typeof(Commands_Slash.CharacterCommand), typeof(Commands_Slash.FlipCommand),
+                    typeof(Commands_Slash.ConvertCommand), typeof(Commands_Slash.SearchQuoteCommand),
+                    typeof(Commands_ContextMenu.AddQuoteMenu), typeof(Commands_ContextMenu.UndoAddQuoteMenu),
+                    typeof(Commands_Text.MessageCommand)]);
                 TextCommandProcessor textCommandProcessor = new(new()
                 {
                     PrefixResolver = new DefaultPrefixResolver(false, ".").ResolvePrefixAsync,
@@ -70,222 +71,6 @@ namespace Acorn
             PrintDebugMessage($"Initialising finished in {initTime.ElapsedMilliseconds} ms.");
 
             await Task.Delay(-1);
-        }
-
-        /*-------------------
-        Context Menu Commands
-        -------------------*/
-        public class AddQuoteMenu
-        {
-            [Command("Add Quote")]
-            [SlashCommandTypes(DiscordApplicationCommandType.MessageContextMenu)]
-            [AllowedProcessors(typeof(MessageCommandProcessor))]
-            public async Task AddQuote(MessageCommandContext context, DiscordMessage message)
-            {
-                var AddQuoteTime = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine("Adding a quote.");
-
-                await context.RespondAsync(quotesList.Add(context, message));
-                AddQuoteTime.Stop();
-
-                quotesList.CountQuotes();
-
-                Console.WriteLine($"  Quote-adding finished in {AddQuoteTime.ElapsedMilliseconds}ms.");
-                if (AddQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Adding a quote took {AddQuoteTime.ElapsedMilliseconds}ms."); }
-            }
-        }
-
-        public class UndoAddQuoteMenu
-        {
-            [Command("Undo Last Quote")]
-            [SlashCommandTypes(DiscordApplicationCommandType.MessageContextMenu)]
-            [AllowedProcessors(typeof(MessageCommandProcessor))]
-            public async Task UndoAddQuote(MessageCommandContext context)
-            {
-                var UndoAddQuoteTime = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine("Undoing the last quote.");
-
-                await context.RespondAsync(quotesList.Undo(context));
-
-                UndoAddQuoteTime.Stop();
-                Console.WriteLine($"  Quote-undoing finished in {UndoAddQuoteTime.ElapsedMilliseconds}ms.");
-                if (UndoAddQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Undoing a quote took {UndoAddQuoteTime.ElapsedMilliseconds}ms."); }
-            }
-        }
-
-        /*------------
-        Slash Commands
-        ------------*/
-        public class HelpCommand
-        {
-            [Command("help"), Description("Prints the help article for a given command.")]
-            public static async ValueTask ExecuteAsync
-                (CommandContext context,
-                [Description("The command which you need help with."), SlashAutoCompleteProvider<HelpCommandAutoCompleteProvider>] string command)
-            {
-                var HelpTime = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a help article.");
-
-                await context.RespondAsync(helpArticlesList.GetHelp(command));
-
-                HelpTime.Stop();
-                Console.WriteLine($"  Help article-returning finished in {HelpTime.ElapsedMilliseconds}ms.");
-                if (HelpTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a help article took {HelpTime.ElapsedMilliseconds}ms."); }
-            }
-        }
-
-        public class QuoteCommand
-        {
-            [Command("quote"), Description("Prints a random quote from the collection.")]
-            public static async ValueTask ExecuteAsync(CommandContext context)
-            {
-                var RandomQuoteTime = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a random quote.");
-
-                await context.RespondAsync(quotesList.Print("", true));
-
-                RandomQuoteTime.Stop();
-                Console.WriteLine($"  Quote-returning finished in {RandomQuoteTime.ElapsedMilliseconds}ms. Random quote index is now {quotesList.GetShuffledIndex()}.");
-                if (RandomQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a random quote took {RandomQuoteTime.ElapsedMilliseconds}ms."); }
-
-                quotesList.Reshuffle();
-            }
-        }
-
-        public class SpecificQuoteCommand
-        {
-            [Command("specificquote"), Description("Prints a specified quote from the collection.")]
-            public static async ValueTask ExecuteAsync(CommandContext context, [Description("The number of the quote you wish to recall.")] string quoteId)
-            {
-                var SpecificQuoteTime = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a specific quote.");
-
-                await context.RespondAsync(quotesList.Print(quoteId, false));
-
-                SpecificQuoteTime.Stop();
-                Console.WriteLine($"  Quote-returning finished in {SpecificQuoteTime.ElapsedMilliseconds}ms.");
-                if (SpecificQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a quote took {SpecificQuoteTime.ElapsedMilliseconds}ms."); }
-            }
-        }
-
-        public class QuoteByCommand
-        {
-            [Command("quoteby"), Description("Prints a random quote from the chosen person.")]
-            public static async ValueTask ExecuteAsync(CommandContext context, [Description("The author of the quote you wish to recall.")] string authorId)
-            {
-                var SpecificQuoteTime = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a specific quote.");
-
-                await context.RespondAsync(quotesList.QuoteBy(authorId));
-
-                SpecificQuoteTime.Stop();
-                Console.WriteLine($"  Quote-returning finished in {SpecificQuoteTime.ElapsedMilliseconds}ms.");
-                if (SpecificQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a quote took {SpecificQuoteTime.ElapsedMilliseconds}ms."); }
-            }
-        }
-
-        public class SearchQuoteCommand
-        {
-            [Command("searchquote"), Description("Searches for quotes that match the given query.")]
-            public static async ValueTask ExecuteAsync(CommandContext context, [Description("The search query. At least 2 characters long.")] string query)
-            {
-                var SearchQuoteTime = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Searching for quotes.");
-
-                await context.RespondAsync(quotesList.Search(query));
-
-                SearchQuoteTime.Stop();
-                Console.WriteLine($"  Quote-searching finished in {SearchQuoteTime.ElapsedMilliseconds}ms.");
-                if (SearchQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Searching for quotes took {SearchQuoteTime.ElapsedMilliseconds}ms."); }
-            }
-        }
-
-        public class CharacterCommand
-        {
-            [Command("character"), Description("Prints a randomly-rolled Dungeons and Dragons character block.")]
-            public static async ValueTask ExecuteAsync(CommandContext context)
-            {
-                var CharacterTime = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Generating a character.");
-
-                Character character = new();
-                await context.RespondAsync(character.Roll());
-
-                CharacterTime.Stop();
-                Console.WriteLine($"  Character-generating finished in {CharacterTime.ElapsedMilliseconds}ms.");
-                if (CharacterTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Generating a character took {CharacterTime.ElapsedMilliseconds}ms."); }
-            }
-        }
-
-        public class RollDiceCommand
-        {
-            [Command("roll"), Description("Rolls n x-sided dice. Example: ‘/r 2d4’. Details: ‘/help r’.")]
-            public static async ValueTask ExecuteAsync(CommandContext context, [Description("The number of dice to roll and the number of their sides. Example: ‘2d4’.")] string dice)
-            {
-                var RollTime = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Rolling dice.");
-
-                Dice dice_command = new();
-                await context.RespondAsync(dice_command.Roll(dice));
-
-                RollTime.Stop();
-                Console.WriteLine($"  Character-generating finished in {RollTime.ElapsedMilliseconds}ms.");
-                if (RollTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Generating a character took {RollTime.ElapsedMilliseconds}ms."); }
-            }
-        }
-
-        public class FlipCommand
-        {
-            [Command("flip"), Description("Flips a coin.")]
-            public static async ValueTask ExecuteAsync(CommandContext context)
-            {
-                var FlipTime = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Flipping a coin.");
-
-                Flip flip = new();
-                await context.RespondAsync(flip.DoFlip());
-
-                FlipTime.Stop();
-                Console.WriteLine($"  Coin-flipping finished in {FlipTime.ElapsedMilliseconds}ms.");
-                if (FlipTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Flipping a coin took {FlipTime.ElapsedMilliseconds}ms."); }
-            }
-        }
-
-        public class ConvertCommand
-        {
-            [Command("convert"), Description("Converts a value between two units.")]
-            public static async ValueTask ExecuteAsync(CommandContext context,
-                [Description("The value you wish to convert.")] string inputValue,
-                [Description("The unit you with to convert from."), SlashAutoCompleteProvider<ConvertCommandAutoCompleteProvider>] string inputUnit,
-                [Description("The unit you wish to convert to."), SlashAutoCompleteProvider<ConvertCommandAutoCompleteProvider>] string outputUnit)
-            {
-                var ConvertTime = System.Diagnostics.Stopwatch.StartNew();
-                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Converting a value.");
-
-                Convert convert = new();
-                await context.RespondAsync(convert.DoConvert(inputValue, inputUnit, outputUnit));
-
-                ConvertTime.Stop();
-                Console.WriteLine($"  Value-converting finished in {ConvertTime.ElapsedMilliseconds}ms.");
-                if (ConvertTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Converting a value took {ConvertTime.ElapsedMilliseconds}ms."); }
-            }
-        }
-
-        /*-----------
-        Text Commands
-        -----------*/
-        public static class MessageCommand
-        {
-            [Command("message"), AllowedProcessors<TextCommandProcessor>()]
-            public static async ValueTask ExecuteAsync(CommandContext context, [RemainingText] string input)
-            {
-                string channelId = input.Substring(0, input.IndexOf(' '));
-                input = input.Remove(0, input.IndexOf(" ") + 1);
-
-                DiscordChannel channel = await debugClient.GetChannelAsync(ulong.Parse(channelId));
-
-                var message = await new DiscordMessageBuilder().WithContent(input).SendAsync(channel);
-            }
         }
     }
 }

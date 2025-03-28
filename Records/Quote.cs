@@ -1,4 +1,4 @@
-﻿namespace Acorn
+﻿namespace Acorn.Records
 {
     internal record Quote
     {

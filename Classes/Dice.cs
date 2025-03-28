@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace Acorn
+namespace Acorn.Classes
 {
     internal class Dice
     {
@@ -26,15 +26,15 @@ namespace Acorn
             {
                 if (dice[0] == 'd')
                 {
-                    if (!Int32.TryParse(dice.Substring(1), out diceSplit[1])) { answer = "Error: Invalid format. For help, see: `/help r`."; }
+                    if (!int.TryParse(dice.Substring(1), out diceSplit[1])) { answer = "Error: Invalid format. For help, see: `/help r`."; }
                     else if (diceSplit[1] < 1 || diceSplit[1] > 100) { answer = "Error: The number of dice or the number of sides falls outside of the accepted range. For help, see: `/help r`."; }
                     else { answer = RollDice(1, diceSplit[1], modifierType, modifier, hasReroll); }
                 }
                 else
                 {
                     dicePreSplit = dice.Split('d');
-                    if (!Int32.TryParse(dicePreSplit[0], out diceSplit[0])) { answer = "Error: Invalid format. For help, see: `/help r`."; }
-                    else if (!Int32.TryParse(dicePreSplit[1], out diceSplit[1])) { answer = "Error: Invalid format. For help, see: `/help r`."; }
+                    if (!int.TryParse(dicePreSplit[0], out diceSplit[0])) { answer = "Error: Invalid format. For help, see: `/help r`."; }
+                    else if (!int.TryParse(dicePreSplit[1], out diceSplit[1])) { answer = "Error: Invalid format. For help, see: `/help r`."; }
                     else if (diceSplit[0] < 1 || diceSplit[0] > 10 || diceSplit[1] < 1 || diceSplit[1] > 100) { answer = "Error: The number of dice or the number of sides falls outside of the accepted range. For help, see: `/help r`."; }
                     else { answer = RollDice(diceSplit[0], diceSplit[1], modifierType, modifier, hasReroll); }
                 }
@@ -57,7 +57,7 @@ namespace Acorn
 
             if (modifierType == '+' || modifierType == '-')
             {
-                if (!Int32.TryParse(dice.Substring(dice.IndexOf(modifierType) + 1), out modifier))
+                if (!int.TryParse(dice.Substring(dice.IndexOf(modifierType) + 1), out modifier))
                 {
                     answer = "Error: Incorrect format. For help, see `/help r`.";
                     alreadyAnswered = true;

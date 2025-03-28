@@ -1,4 +1,4 @@
-﻿namespace Acorn
+﻿namespace Acorn.Classes
 {
     internal class Character
     {
