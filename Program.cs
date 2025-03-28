@@ -17,14 +17,14 @@ namespace Acorn
     class Program
     {
         static string discordTokenPath = "tock.txt";
-        static string quotesPath = "quotes.json";
+        public static string quotesPath = "quotes.json";
         static string helpArticlesPath = "help.json";
         static string discordToken = File.ReadLines(discordTokenPath).First();
         static DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
         static DiscordClient debugClient = builder.Build();
         static DiscordChannel debugChannel;
         static HelpArticlesList helpArticlesList = new(helpArticlesPath);
-        static QuotesList quotesList = new(debugClient, quotesPath);
+        public static QuotesList quotesList = new(debugClient, quotesPath);
 
         async static void PrintDebugMessage(string message)
         {
@@ -82,8 +82,10 @@ namespace Acorn
                 Console.WriteLine("Adding a quote.");
 
                 await context.RespondAsync(quotesList.Add(context, message));
-
                 AddQuoteTime.Stop();
+
+                quotesList.CountQuotes();
+
                 Console.WriteLine($"  Quote-adding finished in {AddQuoteTime.ElapsedMilliseconds}ms.");
                 if (AddQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Adding a quote took {AddQuoteTime.ElapsedMilliseconds}ms."); }
             }
@@ -162,10 +164,26 @@ namespace Acorn
             }
         }
 
+        public class QuoteByCommand
+        {
+            [Command("quoteby"), Description("Prints a random quote from the chosen person.")]
+            public static async ValueTask ExecuteAsync(CommandContext context, [Description("The author of the quote you wish to recall.")] string authorId)
+            {
+                var SpecificQuoteTime = System.Diagnostics.Stopwatch.StartNew();
+                Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Returning a specific quote.");
+
+                await context.RespondAsync(quotesList.QuoteBy(authorId));
+
+                SpecificQuoteTime.Stop();
+                Console.WriteLine($"  Quote-returning finished in {SpecificQuoteTime.ElapsedMilliseconds}ms.");
+                if (SpecificQuoteTime.ElapsedMilliseconds > 3000) { PrintDebugMessage($"Returning a quote took {SpecificQuoteTime.ElapsedMilliseconds}ms."); }
+            }
+        }
+
         public class SearchQuoteCommand
         {
             [Command("searchquote"), Description("Searches for quotes that match the given query.")]
-            public static async ValueTask ExecuteAsync(CommandContext context, [Description("The search query. At least 3 characters long.")] string query)
+            public static async ValueTask ExecuteAsync(CommandContext context, [Description("The search query. At least 2 characters long.")] string query)
             {
                 var SearchQuoteTime = System.Diagnostics.Stopwatch.StartNew();
                 Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Searching for quotes.");

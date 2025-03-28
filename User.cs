@@ -4,17 +4,13 @@
     {
         public ulong Id;
         public string? Name;
+        public int? QuoteCount;
 
-        public User(ulong id)
+        public User()
         {
-            Id = id;
+            Id = 0;
             Name = null;
-        }
-
-        public User(ulong id, string? name)
-        {
-            Id = id;
-            Name = name;
+            QuoteCount = 0;
         }
     }
 }

@@ -13,12 +13,12 @@ namespace Acorn
         private static int ShuffledIndex;
         private static string QuotesPath;
         private static ulong? LastQuoter;
+        public List<User>? Users;
 
         public QuotesList(DiscordClient client, string quotesPath)
         {
             QuotesPath = quotesPath;
 
-            int usersI = 0;
             int error = 0;
             int invalidUserId = 0;
             int erroredUserId = 0;
@@ -31,27 +31,26 @@ namespace Acorn
             }
 
             Console.Write("  Getting the number of unique users. ");
-            usersI = Quotes.Select(x => x.UserId).Distinct().Count();
-            ulong[] distinctUserIds = new ulong[usersI];
-            distinctUserIds = Quotes.Select(x => x.UserId).Distinct().ToArray();
-            string[] distinctUsernames = new string[usersI];
-            Console.WriteLine($"Result: {usersI}");
+            Users = new List<User>(Quotes.Select(x => x.UserId).Distinct().Count());
+            ulong[] distinctUserIds = Quotes.Select(x => x.UserId).Distinct().ToArray();
+            for (int i = 0; i < Users.Count; i++) { Users[i].Id = distinctUserIds[i]; }
+            Console.WriteLine($"Result: {Users.Count}");
 
             Console.Write("  Querying the API for global nicknames. ");
-            for (int i = 0; i < usersI; i++)
+            for (int i = 0; i < Users.Count; i++)
             {
                 try
                 {
-                    discordUser = client.GetUserAsync(distinctUserIds[i]).Result;
+                    discordUser = client.GetUserAsync(Users[i].Id).Result;
                 }
                 catch (Exception e)
                 {
                     if (e is BadRequestException) { error = 1; }
                     if (e is ServerErrorException) { error = 2; }
                 }
-                if (error != 0) { distinctUsernames[i] = "Someone"; }
-                else if (discordUser.GlobalName is null) distinctUsernames[i] = discordUser.Username; //Fall back to username if global nickname isn't present
-                else distinctUsernames[i] = discordUser.GlobalName;
+                if (error != 0) { Users[i].Name = "Someone"; }
+                else if (discordUser.GlobalName is null) Users[i].Name = discordUser.Username; //Fall back to username if global nickname isn't present
+                else Users[i].Name = discordUser.GlobalName;
             }
 
             DiscordChannel debugChannel = client.GetChannelAsync(1337097452859428877).Result;
@@ -60,17 +59,18 @@ namespace Acorn
             if (error == 2) { debugChannel.SendMessageAsync($"The Discord API has encountered an error, so one or more global nicknames have been set to Someone. Index: {erroredUserId}"); }
 
             Console.WriteLine("  Filling up quotes list with queried names.");
-            for (int i = 0; i < distinctUsernames.Count(); i++)
+            for (int i = 0; i < Users.Count; i++)
             {
                 for (int j = 0; j < Quotes.Count; j++)
                 {
-                    if (distinctUserIds[i] == Quotes[j].UserId)
-                    {
-                        Quotes[j].Username = distinctUsernames[i];
-                    }
+                    if (distinctUserIds[i] == Quotes[j].UserId) Quotes[j].Username = Users[i].Name;
                 }
             }
 
+            Console.WriteLine("  Filling up quote counters.");
+            CountQuotes();
+
+            Console.WriteLine("  Shuffling quotes.");
             Shuffle();
         }
 
@@ -96,6 +96,19 @@ namespace Acorn
             {
                 Console.WriteLine("The shuffled quotes list has reached its end. Reshuffling.");
                 Shuffle();
+            }
+        }
+
+        public void CountQuotes()
+        {
+            for (int i = 0; i < Users.Count; i++) { Users[i].QuoteCount = 0; }
+
+            for (int i = 0; i < Quotes.Count; i++)
+            {
+                for (int j = 0; j < Users.Count; j++)
+                {
+                    if (Quotes[i].UserId == Users[i].Id) { Users[i].QuoteCount++; break; }
+                }
             }
         }
 
@@ -227,6 +240,14 @@ namespace Acorn
             if (isShuffled) ShuffledIndex++;
 
             return new DiscordMessageBuilder().WithContent(messageContent);
+        }
+
+        public DiscordMessageBuilder QuoteBy(string authorId)
+        {
+            Random random = new Random();
+            List<Quote> userQuotes = Quotes.FindAll(i => i.UserId == ulong.Parse(authorId));
+
+            return Print(userQuotes[random.Next(0, userQuotes.Count)].UserId.ToString(), false);
         }
 
         public string Search(string query)

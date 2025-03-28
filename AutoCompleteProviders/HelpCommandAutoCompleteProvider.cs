@@ -19,7 +19,14 @@ namespace Acorn.AutoCompleteProviders
                 new DiscordAutoCompleteChoice("/convert", "convert")
             ];
 
-            return ValueTask.FromResult(commands);
+            if (context.UserInput.Length < 3)
+            {
+                return ValueTask.FromResult(commands);
+            }
+            else
+            {
+                return ValueTask.FromResult(commands.Where(unit => unit.Name.ToLower().Contains(context.UserInput.ToLower())).Take(25));
+            }
         }
     }
 }
