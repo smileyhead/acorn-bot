@@ -13,9 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02453" />
-    <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02453" />
-    <PackageReference Include="UnitsNet" Version="5.70.0" />
+    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02475" />
+    <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02475" />
+    <PackageReference Include="UnitsNet" Version="6.0.0-pre014" />
   </ItemGroup>
 
   <ItemGroup>
