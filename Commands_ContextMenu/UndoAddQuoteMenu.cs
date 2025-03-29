@@ -11,7 +11,7 @@ namespace Acorn.Commands_ContextMenu
         [Command("Undo Last Quote")]
         [SlashCommandTypes(DiscordApplicationCommandType.MessageContextMenu)]
         [AllowedProcessors(typeof(MessageCommandProcessor))]
-        public async Task UndoAddQuote(MessageCommandContext context)
+        public async Task UndoAddQuote(MessageCommandContext context, DiscordMessage message)
         {
             var UndoAddQuoteTime = System.Diagnostics.Stopwatch.StartNew();
             Console.WriteLine("Undoing the last quote.");
