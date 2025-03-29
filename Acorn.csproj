@@ -5,8 +5,12 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="tock.txt" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02453" />

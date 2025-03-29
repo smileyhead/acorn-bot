@@ -132,7 +132,7 @@ namespace Acorn.Classes
                 Console.WriteLine("  Error: Quoting self.");
                 return "I'm sorry, but I can't quote myself – I don't want to sound arrogant!";
             }
-            else if (message.Stickers is not null)
+            else if (message.Stickers.Count > 0)
             {
                 Console.WriteLine("  Error: Message has sticker.");
                 return "I'm sorry, but due to Discord's limitations, I can't quote a sticker.\nIf you still wish to quote this message, consider taking a screenshot of it.";
