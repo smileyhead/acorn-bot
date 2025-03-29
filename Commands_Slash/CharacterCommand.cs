@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Commands;
+﻿using Acorn.Classes;
+using DSharpPlus.Commands;
 using System.ComponentModel;
 using System.Globalization;
 
@@ -9,8 +10,7 @@ namespace Acorn.Commands_Slash
         [Command("character"), Description("Prints a randomly-rolled Dungeons and Dragons character block.")]
         public static async ValueTask ExecuteAsync(CommandContext context)
         {
-            var CharacterTime = System.Diagnostics.Stopwatch.StartNew();
-            Console.WriteLine($"{DateTime.Now.ToString("g", CultureInfo.CreateSpecificCulture("hu-HU"))}: Generating a character.");
+            ExecTime CharacterTime = new("Character-generating", "Generating a character");
 
             int[] RollCharacter(int[] set)
             {
@@ -51,8 +51,6 @@ namespace Acorn.Commands_Slash
             await context.RespondAsync(answer);
 
             CharacterTime.Stop();
-            Console.WriteLine($"  Character-generating finished in {CharacterTime.ElapsedMilliseconds}ms.");
-            if (CharacterTime.ElapsedMilliseconds > 3000) { Program.PrintDebugMessage($"Generating a character took {CharacterTime.ElapsedMilliseconds}ms."); }
         }
     }
 }
