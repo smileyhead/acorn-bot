@@ -44,12 +44,12 @@ namespace Acorn
                 extension.AddCommands(
                     [typeof(Commands_Slash.HelpCommand), typeof(Commands_Slash.RollDiceCommand), typeof(Commands_Slash.QuoteCommand),
                     typeof(Commands_Slash.SpecificQuoteCommand), typeof(Commands_Slash.CharacterCommand), typeof(Commands_Slash.FlipCommand),
-                    typeof(Commands_Slash.ConvertCommand), typeof(Commands_Slash.SearchQuoteCommand),
+                    typeof(Commands_Slash.ConvertCommand), typeof(Commands_Slash.SearchQuoteCommand), typeof(Commands_Slash.QuoteByCommand),
                     typeof(Commands_ContextMenu.AddQuoteMenu), typeof(Commands_ContextMenu.UndoAddQuoteMenu),
-                    typeof(Commands_Text.MessageCommand), typeof(Commands_Text.ReplyToCommand)]);
+                    typeof(Commands_Text.MessageCommand), typeof(Commands_Text.ReplyToCommand), typeof(Commands_Text.PingCommand)]);
                 TextCommandProcessor textCommandProcessor = new(new()
                 {
-                    PrefixResolver = new DefaultPrefixResolver(false, ".").ResolvePrefixAsync,
+                    PrefixResolver = new DefaultPrefixResolver(true, ".").ResolvePrefixAsync,
                 });
 
                 extension.AddProcessor(textCommandProcessor);
