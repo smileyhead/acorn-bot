@@ -63,7 +63,7 @@ namespace Acorn
 
             DiscordClient client = builder.Build();
 
-            DiscordActivity status = new("with fire", DiscordActivityType.Playing);
+            DiscordActivity status = new("with you 🫵", DiscordActivityType.Playing);
 
             await client.ConnectAsync(status, DiscordUserStatus.Online);
 
