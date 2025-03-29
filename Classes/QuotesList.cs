@@ -261,6 +261,7 @@ namespace Acorn.Classes
             {
                 string error = "";
                 string answer = "";
+                string quote = "";
                 string username = "";
                 List<Quote> quotesUnshuffled = Quotes.OrderBy(o => o.Id).ToList();
 
@@ -285,32 +286,21 @@ namespace Acorn.Classes
                     for (int i = 0; i < resultsI; i++)
                     {
                         answer += $"`#{quotesUnshuffled[results[i]].Id}` **{quotesUnshuffled[results[i]].Username}:** ";
+                        quote = quotesUnshuffled[results[i]].Body;
 
-                        if (quotesUnshuffled[results[i]].Body.Length <= 51) { answer += $"‘{FlushFormatting(quotesUnshuffled[results[i]].Body)}’\n"; }
-                        else if (quotesUnshuffled[results[i]].Body.IndexOf(query) < 25)
-                        { answer += $"‘{FlushFormatting(quotesUnshuffled[results[i]].Body.Substring(0, 50))}…’\n"; }
-                        else
+                        if (quote.IndexOf(query) > 25)
                         {
-                            int startI = quotesUnshuffled[results[i]].Body.IndexOf(query) - 10;
-                            if (quotesUnshuffled[results[i]].Body.Length - startI <= 51) { answer += $"‘…{FlushFormatting(quotesUnshuffled[results[i]].Body.Substring(startI))}’\n"; }
-                            else
-                            {
-                                int endI = startI + 50;
-                                answer += $"‘…{FlushFormatting(quotesUnshuffled[results[i]].Body.Substring(startI, endI))}…’\n";
-                            }
-                        }
-                    }
-
-                    if (answer.Length > 2000)
-                    {
-                        string append = "-# Not all results can be displayed. Character limit reached.";
-
-                        while (answer.Length > answer.Length + append.Length)
-                        {
-                            answer = ShortenAnswer(answer);
+                            quote = $"…{quotesUnshuffled[results[i]].Body.Substring(quotesUnshuffled[results[i]].Body.IndexOf(query) - 10)}";
                         }
 
-                        answer += append;
+                        if (quote.Length > 50) { quote = $"{quote.Substring(0, 50)}…"; }
+
+                        answer += $"‘{FlushFormatting(quote)}’\n";
+
+                        if (answer.Length > 2000)
+                        {
+                            return ShortenAnswer(answer);
+                        }
                     }
 
                     return answer;
@@ -324,9 +314,27 @@ namespace Acorn.Classes
             string replacement = "\\$1";
             Regex regex = new Regex(pattern);
 
+            input = regex.Replace(input, replacement);
+
+            pattern = "(\n)";
+            replacement = " ";
+            regex = new Regex(pattern);
+
             return regex.Replace(input, replacement);
         }
 
-        private string ShortenAnswer(string input) { return input.Remove(input.LastIndexOf('\n') + 1); }
+        private string ShortenAnswer(string input)
+        {
+            string append = "\n-# Not all results can be displayed. Character limit reached.";
+
+            while (input.Length + append.Length > 2000)
+            {
+                input = input.Substring(0, input.LastIndexOf('\n'));
+            }
+
+            input += append;
+
+            return input;
+        }
     }
 }
