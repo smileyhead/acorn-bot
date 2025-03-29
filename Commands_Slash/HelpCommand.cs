@@ -3,7 +3,6 @@ using Acorn.Classes;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using System.ComponentModel;
-using System.Globalization;
 
 namespace Acorn.Commands_Slash
 {

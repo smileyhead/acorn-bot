@@ -34,7 +34,7 @@ namespace Acorn.Classes
             Console.Write("  Getting the number of unique users. ");
             Users = new List<User>(Quotes.Select(x => x.UserId).Distinct().Count());
             ulong[] distinctUserIds = Quotes.Select(x => x.UserId).Distinct().ToArray();
-            for (int i = 0; i < Users.Count; i++) { Users[i].Id = distinctUserIds[i]; }
+            for (int i = 0; i < distinctUserIds.Length; i++) { Users.Add(new User { Id = distinctUserIds[i] }); }
             Console.WriteLine($"Result: {Users.Count}");
 
             Console.Write("  Querying the API for global nicknames. ");
@@ -108,7 +108,7 @@ namespace Acorn.Classes
             {
                 for (int j = 0; j < Users.Count; j++)
                 {
-                    if (Quotes[i].UserId == Users[i].Id) { Users[i].QuoteCount++; break; }
+                    if (Quotes[i].UserId == Users[j].Id) { Users[j].QuoteCount++; break; }
                 }
             }
         }
@@ -224,8 +224,8 @@ namespace Acorn.Classes
                 if (id_input[0] == '#') { id_input = id_input.Remove(0, 1); }
 
                 if (id_input.ToLower() == "latest") { id = Quotes.Count - 1; }
-                else if (!int.TryParse(id_input, out id)) { messageContent = "Error: Invalid format. For help, see: `/help sq`."; }
-                else if (id < 0 || id > Quotes.Count() - 1) { messageContent = "Error: The specified number falls outside the accepted range. For help, see: `/help sq`."; }
+                else if (!int.TryParse(id_input, out id)) { return new DiscordMessageBuilder().WithContent("Error: Invalid format. For help, see: `/help sq`."); }
+                else if (id < 0 || id > Quotes.Count() - 1) { return new DiscordMessageBuilder().WithContent("Error: The specified number falls outside the accepted range. For help, see: `/help sq`."); }
             }
 
             List<Quote> quotesList = Quotes;
@@ -248,7 +248,7 @@ namespace Acorn.Classes
             Random random = new Random();
             List<Quote> userQuotes = Quotes.FindAll(i => i.UserId == ulong.Parse(authorId));
 
-            return Print(userQuotes[random.Next(0, userQuotes.Count)].UserId.ToString(), false);
+            return Print(userQuotes[random.Next(0, userQuotes.Count - 1)].Id.ToString(), false);
         }
 
         public string Search(string query)

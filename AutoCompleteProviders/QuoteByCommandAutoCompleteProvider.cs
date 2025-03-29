@@ -25,5 +25,5 @@ namespace Acorn.AutoCompleteProviders
                 return ValueTask.FromResult(authorsTask.Where(unit => unit.Name.ToLower().Contains(context.UserInput.ToLower())).Take(25));
             }
         }
-}
+    }
 }
