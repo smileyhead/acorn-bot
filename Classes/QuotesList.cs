@@ -116,7 +116,7 @@ namespace Acorn.Classes
         private void CreateBackup()
         {
             Console.WriteLine("  Backing up quotes.");
-            File.Move(QuotesPath, "backups/" + QuotesPath.Insert(QuotesPath.IndexOf('.'), $"-backup_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}"));
+            File.Move(QuotesPath, $"{Program.backupsPath}{QuotesPath.Insert(QuotesPath.IndexOf('.'), $"-backup_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}")}");
             //quotes.json -> /backups/quotes-backup_yyyy-MM-dd-HH-mm-ss.json
         }
 
@@ -172,7 +172,7 @@ namespace Acorn.Classes
                 LastQuoter = context.User.Id;
 
                 answer += ". Adding quote:\n\n";
-                return $"{answer}{Print((quotesUnshuffled.Count - 1).ToString(), false)}";
+                return $"{answer}{Print((quotesUnshuffled.Count - 1).ToString(), false).Content}";
             }
         }
 
@@ -205,9 +205,9 @@ namespace Acorn.Classes
 
         private void RestoreBackup()
         {
-            var directory = new DirectoryInfo("backup/");
+            var directory = new DirectoryInfo(Program.backupsPath);
             var latestBackup = directory.GetFiles().OrderByDescending(f => f.LastWriteTime).First();
-            File.Move($"quotes/{latestBackup.Name}", "quotes.json", true);
+            File.Move($"{Program.backupsPath}{latestBackup.Name}", QuotesPath, true);
 
             Quotes.Remove(Quotes.OrderByDescending(q => q.Id).First());
         }

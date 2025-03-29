@@ -1,18 +1,10 @@
-﻿using Acorn.AutoCompleteProviders;
-using Acorn.Classes;
+﻿using Acorn.Classes;
 using DSharpPlus;
 using DSharpPlus.Commands;
-using DSharpPlus.Commands.ArgumentModifiers;
-using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Commands.Processors.SlashCommands;
-using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
-using DSharpPlus.Commands.Trees;
-using DSharpPlus.Commands.Trees.Metadata;
 using DSharpPlus.Entities;
-using System.ComponentModel;
-using System.Globalization;
 
 namespace Acorn
 {
@@ -20,6 +12,7 @@ namespace Acorn
     {
         static string discordTokenPath = "tock.txt";
         public static string quotesPath = "quotes.json";
+        public static string backupsPath = "";
         static string helpArticlesPath = "help.json";
         static string discordToken = File.ReadLines(discordTokenPath).First();
         static DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
@@ -37,6 +30,7 @@ namespace Acorn
         {
             var initTime = System.Diagnostics.Stopwatch.StartNew();
             debugChannel = debugClient.GetChannelAsync(1337097452859428877).Result;
+            backupsPath = $"backups{Path.DirectorySeparatorChar}";
 
             if (string.IsNullOrEmpty(discordToken))
             {
