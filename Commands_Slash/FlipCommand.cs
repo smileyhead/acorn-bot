@@ -1,7 +1,6 @@
 ﻿using Acorn.Classes;
 using DSharpPlus.Commands;
 using System.ComponentModel;
-using System.Globalization;
 
 namespace Acorn.Commands_Slash
 {
