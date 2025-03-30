@@ -4,6 +4,7 @@ using System.ComponentModel;
 
 namespace Acorn.Commands_Slash
 {
+
     public class FlipCommand
     {
         [Command("flip"), Description("Flips a coin.")]
@@ -13,8 +14,8 @@ namespace Acorn.Commands_Slash
 
             Random random = new Random();
             string answer = "You flip a coin…\n\nIt's ";
-            if (random.NextDouble() >= 0.5) { answer += "heads!"; }
-            else answer += "tails!";
+            if (random.NextDouble() >= 0.5) { answer += $"{new CoinEmote().GetEmote(true)} heads!"; }
+            else answer += $"{new CoinEmote().GetEmote(false)} tails!";
 
             await context.RespondAsync(answer);
 
