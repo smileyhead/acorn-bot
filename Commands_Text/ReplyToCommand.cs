@@ -11,15 +11,18 @@ namespace Acorn.Commands_Text
         [Command("replyto"), AllowedProcessors<TextCommandProcessor>()]
         public static async ValueTask ExecuteAsync(CommandContext context, [RemainingText] string input)
         {
-            ulong channelId = ulong.Parse(input.Substring(0, input.IndexOf(' ')));
-            input = input.Remove(0, input.IndexOf(" ") + 1);
+            if (context.User.Id == 164119349836120074)
+            {
+                ulong channelId = ulong.Parse(input.Substring(0, input.IndexOf(' ')));
+                input = input.Remove(0, input.IndexOf(" ") + 1);
 
-            ulong messageId = ulong.Parse(input.Substring(0, input.IndexOf(' ')));
-            input = input.Remove(0, input.IndexOf(" ") + 1);
+                ulong messageId = ulong.Parse(input.Substring(0, input.IndexOf(' ')));
+                input = input.Remove(0, input.IndexOf(" ") + 1);
 
-            DiscordChannel channel = await Program.debugClient.GetChannelAsync(channelId);
+                DiscordChannel channel = await Program.debugClient.GetChannelAsync(channelId);
 
-            var reply = await new DiscordMessageBuilder().WithContent(input).WithReply(messageId).SendAsync(channel);
+                var reply = await new DiscordMessageBuilder().WithContent(input).WithReply(messageId).SendAsync(channel);
+            }
         }
     }
 }

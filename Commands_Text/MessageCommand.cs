@@ -10,12 +10,15 @@ namespace Acorn.Commands_Text
         [Command("message")]
         public static async ValueTask TextOnlyAsync(TextCommandContext context, [RemainingText] string input)
         {
-            ulong channelId = ulong.Parse(input.Substring(0, input.IndexOf(' ')));
-            input = input.Remove(0, input.IndexOf(" ") + 1);
+            if (context.User.Id == 164119349836120074)
+            {
+                ulong channelId = ulong.Parse(input.Substring(0, input.IndexOf(' ')));
+                input = input.Remove(0, input.IndexOf(" ") + 1);
 
-            DiscordChannel channel = await Program.debugClient.GetChannelAsync(channelId);
+                DiscordChannel channel = await Program.debugClient.GetChannelAsync(channelId);
 
-            var message = await new DiscordMessageBuilder().WithContent(input).SendAsync(channel);
+                var message = await new DiscordMessageBuilder().WithContent(input).SendAsync(channel);
+            }
         }
     }
 }
