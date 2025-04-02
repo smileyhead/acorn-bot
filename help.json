@@ -5,11 +5,11 @@
   },
   {
 	"Command": "quote",
-	"HelpText": "The `/quote` command returns a random quote from the database, with its accompanying data. This command has no arguments.\n\n**Data storage:** The following data is stored for quotes:\n- ID: A number to reference the quote (zero-indexed). This is displayed at the very beginning of every message returned in the following format: `#No`.\n- Body: The quote itself. Links for attachments are appended to this text.\n- User ID: The Discord user ID of the original message's author. This is stored so that an up-to-date display name can be shown whenever a quote is recalled.\n- Link: A link pointing to the original message so that it can be easily accessed.\n\n**Error-handling:** Since an up-to-date display name is always queried whenever a quote is recalled, in the event that the Discord API cannot respond, a placeholder name (‘Someone’) will be used instead. If this happens, a warning in small print will be displayed at the bottom of the quote. Please note that it should still be possible to manually access the original message and check its author through the link, should you wish to see it.\n\n**Usage**:\n`/quote` returns a random quote."
+	"HelpText": "The `/quote` command returns a random quote from the database, with its accompanying data. This command has no arguments.\n\n**Data storage:** The following data is stored for quotes:\n- ID: A number to reference the quote (zero-indexed). This is displayed at the very beginning of every message returned in the following format: `#No`.\n- Body: The quote itself. Links for attachments are appended to this text.\n- User ID: The Discord user ID of the original message's author. This is stored so that an up-to-date display name can be downloaded whenever the bot starts up.\n- Link: A link pointing to the original message so that it can be easily accessed.\n\n**Error-handling:** Since an up-to-date display name is always queried whenever the bot boots up, in the event that the Discord API cannot respond, a placeholder name (‘Someone’) will be used instead. If this happens, a warning in small print will be displayed at the bottom of the quote. Please note that it should still be possible to manually access the original message and check its author through the link, should you wish to see it.\n\n**Usage:**\n`/quote` returns a random quote."
   },
   {
 	"Command": "specificquote",
-	"HelpText": "The `/specificquote` command returns a specific quote. The quote to be recalled may be referenced by its ID number (zero-indexed). You can also specifically query for the latest quote to be added to the database. For general information about quotes, see `/help q`.\n\n**Usage:**\n`/specificquote 56` returns quote #56 (the 55th quote to be added to the database).\n`/specificquote latest` returns the latest quote."
+	"HelpText": "The `/specificquote` command returns a specific quote. The quote to be recalled may be referenced by its ID number (zero-indexed). You can also specifically query for the latest quote to be added to the database. For general information about quotes, see `/help /quote`.\n\n**Usage:**\n`/specificquote 56` returns quote #56 (the 55th quote to be added to the database).\n`/specificquote #56` returns quote #56 (the 55th quote to be added to the database).\n`/specificquote latest` returns the latest quote."
   },
   {
 	"Command": "help",
@@ -17,7 +17,7 @@
   },
   {
 	"Command": "character",
-	"HelpText": "The `/character` command returns a character block for use with Dungeons and Dragons. This command takes no arguments. Six sets of four d6's will be rolled, and three highest results will be summed up in each set. The sum of every set will also be displayed.\n\n**Usage:**\n`/character` will return a randomly-rolled D&D stat block."
+	"HelpText": "The `/character` command returns a character block for use with *Dungeons & Dragons*. This command takes no arguments. Six sets of four d6's will be rolled, and three highest results will be summed up in each set. The sum of every set will also be displayed.\n\n**Usage:**\n`/character` will return a randomly-rolled *D&D* stat block."
   },
   {
 	"Command": "searchquote",
@@ -25,10 +25,30 @@
   },
   {
 	"Command": "flip",
-	"HelpText": "The `/flip` command flips a coin, with a 50/50 chance of it either landing on heads or tails, and returns the result. This command takes no arguments.\n\n**Usage:**\n`/flip` returns the result of a coin-flip."
+	"HelpText": "The `/flip` command flips a coin, with a 50/50 chance of it either landing on heads or tails, and returns the result. Emotes of Forint (HUF) coins are added for flare. This command takes no arguments.\n\n**Usage:**\n`/flip` returns the result of a coin-flip."
   },
   {
 	"Command": "convert",
-	"HelpText": "The `/convert` command converts a value between two units of measurement. This command uses version 5.70.0 of the [UnitsNet](<https://github.com/angularsen/UnitsNet/>) library by Andreas Gullberg Larsen. The command takes three arguments: the input number, the source unit, and the target unit. This command supports auto-completion for a limited number of units in the library – when less than 3 characters are typed, a fixed list of common units will be displayed. Units contained in the library but not auto-completed can be used by typing the category name followed by the unit name, and separated by a full stop (you can find the full list of category jsons [here](<https://github.com/angularsen/UnitsNet/tree/master/Common/UnitDefinitions>)).\n\n**Undefined Symbols:** If a unit has no symbol defined, then its internal name will be shown instead.\n\n**Usage:**\n`/convert 20 [🌡️ degrees Celsius (°C)] [🌡️ degrees Fahrenheit (°F)]` (auto-completed) returns the value of 20°C converted to °F.\n`/convert 20 Temperature.DegreeCelsius Temperature.DegreeFahrenheit` (typed manually) returns the value of 20°C converted to °F."
+	"HelpText": "The `/convert` command converts a value between two units of measurement. This command uses version `5.70.0` of the [UnitsNet](<https://github.com/angularsen/UnitsNet/>) library by Andreas Gullberg Larsen. The command takes three arguments: the input number, the source unit, and the target unit. This command supports auto-completion for a limited number of units in the library – when less than 2 characters are typed, a fixed list of common units will be displayed. Units contained in the library but not auto-completed can be used by typing the category name followed by the unit name, and separated by a full stop (you can find the full list of category jsons [here](<https://github.com/angularsen/UnitsNet/tree/master/Common/UnitDefinitions>)).\n\n**Undefined Symbols:** If a unit has no symbol defined, then its internal name will be shown instead.\n\n**Usage:**\n`/convert 20 [🌡️ degrees Celsius (°C)] [🌡️ degrees Fahrenheit (°F)]` (auto-completed) returns the value of 20°C converted to °F.\n`/convert 20 Temperature.DegreeCelsius Temperature.DegreeFahrenheit` (typed manually) returns the value of 20°C converted to °F."
+  },
+  {
+	"Command": "addquote",
+	"HelpText": "The **Add Quote** context menu command adds a given message to the quotes database, from where it can be recalled by quote slash commands. Upon execution, a backup of the current database will be created, after which the new quote will be added to both the database, and at a random spot in the upcoming queue. After this process has concluded, the bot will affirm it with one of two randomly-chosen replies accompanied by the new quote. For general information about quotes, see `/help /quote`.\n\n**Disallowed Quotes:** Duplicates – the bot will reject any duplicates. Self-quotes – the bot will reject any messages posted by itself. Stickers – Discord only allows bots to post stickers belonging to the same server. Because of this, messages with stickers attached are also rejected.\n\n**Usage:**\nRight-click (or tap-and-hold) any message, then choose Apps → Add Quote."
+  },
+  {
+	"Command": "undolastquote",
+	"HelpText": "The **Undo Last Quote** context menu command removes the latest quote from the database by restoring the latest backup and removing the quote in question from the upcoming queue. Only the person who has added the quote in question may remove it, and only one quote may be removed in this way. After execution, once a new quote is added, the ability to remove it will become available again. For general information about quotes, see `/help /quote`.\n\n**Usage:**\nRight-click (or tap-and-hold) any message, then choose Apps → Undo Last Quote."
+  },
+  {
+	"Command": "quoteby",
+	"HelpText": "The `/quoteby` command returns a random quote from the database by a given person. While entering the command, a list will be displayed with all current quote authors from the database, as well as the number of quotes they have accumulated so far. For general information about quotes, see `/help /quote`.\n\n**Usage:**\n`/quoteby [Chosen person]` (auto-completed) returns a random quote by the chosen person."
+  },
+  {
+	"Command": "8ball",
+	"HelpText": "The `/ball` command returns a mostly-random fortune based on the replies of a classic magic 8-ball. The fortune returned is based on the query entered as well as the command's user, so the same person asking the same question twice will get the same answer both times, with one exception.\n\n**The Exception:** The seeds for the five most recent questions that have been given a neutral answer are stored so that when asked again, the answer returned will be either positive or negative.\n\n**Usage:** `/8ball [question?]` will return an answer based on the question and the person who asked."
+  },
+  {
+	"Command": "textcommands",
+	"HelpText": "Text commands are commands which can be recalled using a ‘.’ prefix instead of a ‘/’. Text commands do not show up in the auto-complete list, so they will not interfere with everyday usage of the bot. These commands are generally less technical than slash commands, and mostly consist of simple responses.\n\nThe current list of text commands is as follows:\n`.alcohol`: We will need a lot of alcohol.\n`.ban`: Night.\n`.creature`: Posts a picture of Homunculus Loxodontus (nicknamed Zhdun, ‘The One Who Waits,’ Snorp, or WOSH).\n`.helpme`: HELP!\n`.horror`: AAAAAAAAAA\n`.no`: I respectfully decline.\n`.ő` (*alt.*: `.o`): Ő\n`.pirate`: You are a Pirate!\n`.selfie`: Posts a picture of me!\n`.steeve`: He walk.\n`.stop`: Please stop it."
   }
 ]

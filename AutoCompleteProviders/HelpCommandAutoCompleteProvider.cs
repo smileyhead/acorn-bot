@@ -10,12 +10,17 @@ namespace Acorn.AutoCompleteProviders
         {
             IEnumerable<DiscordAutoCompleteChoice> commands =
             [
+                new DiscordAutoCompleteChoice("Add Quote", "addquote"),
+                new DiscordAutoCompleteChoice("Undo Last Quote", "undolastquote"),
+                new DiscordAutoCompleteChoice("Text Commands", "textcommands"),
                 new DiscordAutoCompleteChoice("/quote", "quote"),
                 new DiscordAutoCompleteChoice("/specificquote", "specificquote"),
+                new DiscordAutoCompleteChoice("/quoteby", "quoteby"),
                 new DiscordAutoCompleteChoice("/searchquote", "searchquote"),
                 new DiscordAutoCompleteChoice("/character", "character"),
                 new DiscordAutoCompleteChoice("/roll", "roll"),
                 new DiscordAutoCompleteChoice("/flip", "flip"),
+                new DiscordAutoCompleteChoice("/8ball", "8ball"),
                 new DiscordAutoCompleteChoice("/convert", "convert")
             ];
 
