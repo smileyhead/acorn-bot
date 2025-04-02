@@ -247,7 +247,7 @@ namespace Acorn.Classes
         {
             if (!ulong.TryParse(authorId, out ulong id))
             {
-                return new DiscordMessageBuilder().WithContent("The author ID given could not be parsed. Did you choose from the list?");
+                return new DiscordMessageBuilder().WithContent("Error: The author ID given could not be parsed. Did you choose from the list?");
             }
 
             Random random = new Random();
