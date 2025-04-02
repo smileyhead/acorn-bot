@@ -43,9 +43,6 @@ namespace Acorn
                 Environment.Exit(1);
             }
 
-            builder.SetLogLevel(LogLevel.Trace);
-
-
             builder.UseCommands((IServiceProvider serviceProvider, CommandsExtension extension) =>
             {
                 extension.AddCommands(
