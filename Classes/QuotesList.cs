@@ -245,8 +245,13 @@ namespace Acorn.Classes
 
         public DiscordMessageBuilder QuoteBy(string authorId)
         {
+            if (!ulong.TryParse(authorId, out ulong id))
+            {
+                return new DiscordMessageBuilder().WithContent("The author ID given could not be parsed. Did you choose from the list?");
+            }
+
             Random random = new Random();
-            List<Quote> userQuotes = Quotes.FindAll(i => i.UserId == ulong.Parse(authorId));
+            List<Quote> userQuotes = Quotes.FindAll(i => i.UserId == id);
 
             return Print(userQuotes[random.Next(0, userQuotes.Count - 1)].Id.ToString(), false);
         }
