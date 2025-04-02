@@ -2,6 +2,7 @@
 using Acorn.Classes;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
+using Polly.CircuitBreaker;
 using System.ComponentModel;
 using System.Globalization;
 using UnitsNet;
@@ -28,18 +29,36 @@ namespace Acorn.Commands_Slash
 
             string[] inputUnitSplit = inputUnit.Split('.');
             IQuantity? inputQuantity = null;
-            if (!alreadyAnswered && !Quantity.TryFrom(value: inputDouble, quantityName: inputUnitSplit[0], unitName: inputUnitSplit[1], out inputQuantity))
+            if (!alreadyAnswered)
             {
-                await context.RespondAsync($"Error: The input type `{inputUnit}` is invalid.");
-                alreadyAnswered = true;
+                try { Quantity.TryFrom(value: inputDouble, quantityName: inputUnitSplit[0], unitName: inputUnitSplit[1], out inputQuantity); }
+                catch
+                {
+                    await context.RespondAsync($"Error: The input type `{inputUnit}` is invalid.");
+                    alreadyAnswered = true;
+                }
+                if (!alreadyAnswered)
+                {
+                    await context.RespondAsync($"Error: The input type `{inputUnit}` is invalid.");
+                    alreadyAnswered = true;
+                }
             }
 
             string[] outputUnitSplit = outputUnit.Split('.');
             IQuantity? outputQuantity = null;
-            if (!alreadyAnswered && !Quantity.TryFrom(value: 0, quantityName: outputUnitSplit[0], unitName: outputUnitSplit[1], out outputQuantity))
+            if (!alreadyAnswered)
             {
-                await context.RespondAsync($"Error: The output type `{outputUnit}` is invalid.");
-                alreadyAnswered = true;
+                try { Quantity.TryFrom(value: 0, quantityName: outputUnitSplit[0], unitName: outputUnitSplit[1], out outputQuantity); }
+                catch
+                {
+                    await context.RespondAsync($"Error: The output type `{outputUnit}` is invalid.");
+                    alreadyAnswered = true;
+                }
+                if (!alreadyAnswered)
+                {
+                    await context.RespondAsync($"Error: The output type `{outputUnit}` is invalid.");
+                    alreadyAnswered = true;
+                }
             }
 
             if (!alreadyAnswered && inputQuantity.QuantityInfo.UnitType != outputQuantity.QuantityInfo.UnitType)
