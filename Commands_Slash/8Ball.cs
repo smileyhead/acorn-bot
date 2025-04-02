@@ -17,7 +17,7 @@ namespace Acorn.Commands_Slash
             else
             {
                 if (!question.EndsWith('?')) answer += $"That's not a question! But I'll accept it anyway.\n";
-                answer += $"You turn over the magic 8-ball…\n\nIt says, ‘{Program.magic8Ball.ReturnFortune(context.User.Id, question)}’";
+                answer += $"You turn over the magic 8-ball and ask, ‘{question}’…\n\nWhen you lift it back up it says, ‘{Program.magic8Ball.ReturnFortune(context.User.Id, question)}’";
             }
 
             await context.RespondAsync(answer);
