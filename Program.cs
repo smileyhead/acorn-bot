@@ -5,6 +5,7 @@ using DSharpPlus.Commands.Processors.SlashCommands;
 using DSharpPlus.Commands.Processors.TextCommands;
 using DSharpPlus.Commands.Processors.TextCommands.Parsing;
 using DSharpPlus.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace Acorn
 {
@@ -15,7 +16,7 @@ namespace Acorn
         public static string backupsPath = "";
         static string helpArticlesPath = "help.json";
         static string discordToken = File.ReadLines(discordTokenPath).First();
-        static DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
+        static DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, DiscordIntents.MessageContents | TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
         public static DiscordClient debugClient = builder.Build();
         static DiscordChannel debugChannel;
         public static HelpArticlesList helpArticlesList = new(helpArticlesPath);
@@ -29,6 +30,7 @@ namespace Acorn
 
         static async Task Main(string[] args)
         {
+            builder = DiscordClientBuilder.CreateDefault(discordToken, DiscordIntents.MessageContents | TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
             var initTime = System.Diagnostics.Stopwatch.StartNew();
             Console.WriteLine("Initialising...");
             debugChannel = debugClient.GetChannelAsync(1337097452859428877).Result;
@@ -40,6 +42,9 @@ namespace Acorn
                 initTime.Stop();
                 Environment.Exit(1);
             }
+
+            builder.SetLogLevel(LogLevel.Trace);
+
 
             builder.UseCommands((IServiceProvider serviceProvider, CommandsExtension extension) =>
             {
