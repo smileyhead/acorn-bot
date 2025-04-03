@@ -2,7 +2,6 @@
 using Acorn.Classes;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
-using Polly.CircuitBreaker;
 using System.ComponentModel;
 using System.Globalization;
 using UnitsNet;
@@ -20,6 +19,13 @@ namespace Acorn.Commands_Slash
             ExecTime ConvertTime = new("Value-converting", "Converting a value");
 
             bool alreadyAnswered = false;
+            bool infiniteValue = false;
+
+            if (inputValue == "∞")
+            {
+                infiniteValue = true;
+                inputValue = "1";
+            }
 
             if (!double.TryParse(inputValue, CultureInfo.InvariantCulture, out double inputDouble))
             {
@@ -37,11 +43,6 @@ namespace Acorn.Commands_Slash
                     await context.RespondAsync($"Error: The input type `{inputUnit}` is invalid.");
                     alreadyAnswered = true;
                 }
-                if (!alreadyAnswered)
-                {
-                    await context.RespondAsync($"Error: The input type `{inputUnit}` is invalid.");
-                    alreadyAnswered = true;
-                }
             }
 
             string[] outputUnitSplit = outputUnit.Split('.');
@@ -50,11 +51,6 @@ namespace Acorn.Commands_Slash
             {
                 try { Quantity.TryFrom(value: 0, quantityName: outputUnitSplit[0], unitName: outputUnitSplit[1], out outputQuantity); }
                 catch
-                {
-                    await context.RespondAsync($"Error: The output type `{outputUnit}` is invalid.");
-                    alreadyAnswered = true;
-                }
-                if (!alreadyAnswered)
                 {
                     await context.RespondAsync($"Error: The output type `{outputUnit}` is invalid.");
                     alreadyAnswered = true;
@@ -74,6 +70,12 @@ namespace Acorn.Commands_Slash
 
                 if (char.IsDigit(inputNumberFormatted[inputNumberFormatted.Length - 1])) { inputNumberFormatted += $" {inputUnitSplit[1]}"; }
                 if (char.IsDigit(outputNumberFormatted[outputNumberFormatted.Length - 1])) { outputNumberFormatted += $" {outputUnitSplit[1]}"; }
+
+                if (infiniteValue)
+                {
+                    inputNumberFormatted = "∞" + inputNumberFormatted.Substring(inputNumberFormatted.IndexOf(' '));
+                    outputNumberFormatted = "∞" + outputNumberFormatted.Substring(outputNumberFormatted.IndexOf(' '));
+                }
 
                 string answer = $"**{inputNumberFormatted}** equals **{outputNumberFormatted}**.";
 
