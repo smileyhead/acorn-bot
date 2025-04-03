@@ -45,7 +45,7 @@
   },
   {
 	"Command": "8ball",
-	"HelpText": "The `/ball` command returns a mostly-random fortune based on the replies of a classic magic 8-ball. The fortune returned is based on the query entered as well as the command's user, so the same person asking the same question twice will get the same answer both times, with one exception.\n\n**The Exception:** The seeds for the five most recent questions that have been given a neutral answer are stored so that when asked again, the answer returned will be either positive or negative.\n\n**Usage:** `/8ball [question?]` will return an answer based on the question and the person who asked."
+	"HelpText": "The `/8ball` command returns a mostly-random fortune based on the replies of a classic magic 8-ball. The fortune returned is based on the query entered as well as the command's user, so the same person asking the same question twice will get the same answer both times, with one exception.\n\n**The Exception:** The seeds for the five most recent questions that have been given a neutral answer are stored so that when asked again, the answer returned will be either positive or negative.\n\n**Usage:** `/8ball [question?]` will return an answer based on the question and the person who asked."
   },
   {
 	"Command": "textcommands",
