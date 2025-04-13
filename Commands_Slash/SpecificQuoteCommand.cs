@@ -1,5 +1,6 @@
 ﻿using Acorn.Classes;
 using DSharpPlus.Commands;
+using DSharpPlus.Entities;
 using System.ComponentModel;
 using System.Globalization;
 
@@ -12,7 +13,11 @@ namespace Acorn.Commands_Slash
         {
             ExecTime SpecificQuoteTime = new("Quote-returning", "Returning a quote");
 
-            await context.RespondAsync(Program.quotesList.Print(quoteId, false));
+            (DiscordMessageBuilder message, string secondHalf) = Program.quotesList.Print(quoteId, false, "");
+
+            await context.RespondAsync(message);
+
+            if (secondHalf != "") { context.Channel.SendMessageAsync(secondHalf); }
 
             SpecificQuoteTime.Stop();
         }

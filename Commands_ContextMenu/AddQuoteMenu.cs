@@ -16,8 +16,12 @@ namespace Acorn.Commands_ContextMenu
             var AddQuoteTime = System.Diagnostics.Stopwatch.StartNew();
             Console.WriteLine("Adding a quote.");
 
-            await context.RespondAsync(Program.quotesList.Add(context, message));
+            (string firstHalf, string secondHalf) = Program.quotesList.Add(context, message);
+
+            await context.RespondAsync(firstHalf);
             AddQuoteTime.Stop();
+
+            if (secondHalf != "") { context.Channel.SendMessageAsync(secondHalf); }
 
             Program.quotesList.CountQuotes();
 

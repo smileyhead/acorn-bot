@@ -3,8 +3,10 @@ using DSharpPlus;
 using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using UnitsNet;
 
 namespace Acorn.Classes
 {
@@ -120,22 +122,22 @@ namespace Acorn.Classes
             //quotes.json -> /backups/quotes-backup_yyyy-MM-dd-HH-mm-ss.json
         }
 
-        public string Add(MessageCommandContext context, DiscordMessage message)
+        public (string message, string secondHalf) Add(MessageCommandContext context, DiscordMessage message)
         {
             if (Quotes.Any(a => a.Link.Substring(a.Link.LastIndexOf('/') + 1) == message.Id.ToString()))
             {
                 Console.WriteLine("  Error: Quote exists.");
-                return "This quote already exists!";
+                return ("This quote already exists!", "");
             }
             else if (message.Author.Id == 1335008063589191721)
             {
                 Console.WriteLine("  Error: Quoting self.");
-                return "I'm sorry, but I can't quote myself – I don't want to sound arrogant!";
+                return ("I'm sorry, but I can't quote myself – I don't want to sound arrogant!", "");
             }
             else if (message.Stickers.Count > 0)
             {
                 Console.WriteLine("  Error: Message has sticker.");
-                return "I'm sorry, but due to Discord's limitations, I can't quote a sticker.\nIf you still wish to quote this message, consider taking a screenshot of it.";
+                return ("I'm sorry, but due to Discord's limitations, I can't quote a sticker.\nIf you still wish to quote this message, consider taking a screenshot of it.", "");
             }
             else
             {
@@ -172,7 +174,10 @@ namespace Acorn.Classes
                 LastQuoter = context.User.Id;
 
                 answer += ". Adding quote:\n\n";
-                return $"{answer}{Print((quotesUnshuffled.Count - 1).ToString(), false).Content}";
+
+                (DiscordMessageBuilder printedMessage, string secondHalf) = Print((quotesUnshuffled.Count - 1).ToString(), false, answer);
+
+                return (printedMessage.Content, secondHalf);
             }
         }
 
@@ -212,10 +217,14 @@ namespace Acorn.Classes
             Quotes.Remove(Quotes.OrderByDescending(q => q.Id).First());
         }
 
-        public DiscordMessageBuilder Print(string id_input, bool isShuffled)
+        public (DiscordMessageBuilder message, string secondHalf) Print(string id_input, bool isShuffled, string prefix)
         {
+            string PurgeBeginning(string message) { if (message[0] == '\n' || message[0] == ' ') return message.Substring(1); return message; }
+            string PurgeEnd(string message) { if (message[message.Length - 1] == '\n') return message.Remove(message.Length - 2); return message; }
+
             Console.WriteLine("  Printing a quote.");
-            string messageContent = "";
+            string messageContent = prefix;
+            string secondHalf = "";
             int id = 0;
 
             if (isShuffled) id = ShuffledIndex;
@@ -224,8 +233,8 @@ namespace Acorn.Classes
                 if (id_input[0] == '#') { id_input = id_input.Remove(0, 1); }
 
                 if (id_input.ToLower() == "latest") { id = Quotes.Count - 1; }
-                else if (!int.TryParse(id_input, out id)) { return new DiscordMessageBuilder().WithContent("Error: Invalid format. For help, see: `/help sq`."); }
-                else if (id < 0 || id > Quotes.Count() - 1) { return new DiscordMessageBuilder().WithContent("Error: The specified number falls outside the accepted range. For help, see: `/help sq`."); }
+                else if (!int.TryParse(id_input, out id)) { return (new DiscordMessageBuilder().WithContent("Error: Invalid format. For help, see: `/help sq`."), ""); }
+                else if (id < 0 || id > Quotes.Count() - 1) { return (new DiscordMessageBuilder().WithContent("Error: The specified number falls outside the accepted range. For help, see: `/help sq`."), ""); }
             }
 
             List<Quote> quotesList = Quotes;
@@ -240,20 +249,42 @@ namespace Acorn.Classes
 
             if (isShuffled) ShuffledIndex++;
 
-            return new DiscordMessageBuilder().WithContent(messageContent);
+            if (messageContent.Length > 2000)
+            {
+                var regex = Regex.Match(messageContent.Substring(messageContent.Length - messageContent.Length / 3), "([\n.?!;, ])");
+                
+                if (regex.Success)
+                {
+                    int splitIndex = messageContent.Length - messageContent.Length / 3 + regex.Index + 1;
+
+                    if (messageContent[splitIndex] != '\n') secondHalf += "> ";
+                    secondHalf += $"{PurgeBeginning(messageContent.Substring(splitIndex + 1))}";
+                    messageContent = PurgeEnd(messageContent.Remove(splitIndex));
+                }
+                else
+                {
+                    int splitIndex = messageContent.Length - messageContent.Length / 3;
+                    secondHalf = $"> {PurgeBeginning(messageContent.Substring(splitIndex + 1))}";
+                    messageContent = PurgeEnd(messageContent.Remove(splitIndex));
+                }
+
+                secondHalf += "\n-# This message exceeded Discord's limit of 2,000 characters, so it has been split in two.";
+            }
+
+            return (new DiscordMessageBuilder().WithContent(messageContent), secondHalf);
         }
 
-        public DiscordMessageBuilder QuoteBy(string authorId)
+        public (DiscordMessageBuilder message, string secondHalf) QuoteBy(string authorId)
         {
             if (!ulong.TryParse(authorId, out ulong id))
             {
-                return new DiscordMessageBuilder().WithContent("Error: The author ID given could not be parsed. Did you choose from the list?");
+                return (new DiscordMessageBuilder().WithContent("Error: The author ID given could not be parsed. Did you choose from the list?"), "");
             }
 
             Random random = new Random();
             List<Quote> userQuotes = Quotes.FindAll(i => i.UserId == id);
 
-            return Print(userQuotes[random.Next(0, userQuotes.Count - 1)].Id.ToString(), false);
+            return Print(userQuotes[random.Next(0, userQuotes.Count - 1)].Id.ToString(), false, "");
         }
 
         public string Search(string query)

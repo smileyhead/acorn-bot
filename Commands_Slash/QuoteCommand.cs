@@ -1,7 +1,7 @@
 ﻿using Acorn.Classes;
 using DSharpPlus.Commands;
+using DSharpPlus.Entities;
 using System.ComponentModel;
-using System.Globalization;
 
 namespace Acorn.Commands_Slash
 {
@@ -12,9 +12,13 @@ namespace Acorn.Commands_Slash
         {
             ExecTime RandomQuoteTime = new("Quote-returning", "Returning a quote");
 
-            await context.RespondAsync(Program.quotesList.Print("", true));
+            (DiscordMessageBuilder message, string secondHalf) = Program.quotesList.Print("", true, "");
+
+            await context.RespondAsync(message);
 
             RandomQuoteTime.Stop();
+
+            if (secondHalf != "") { context.Channel.SendMessageAsync(secondHalf); }
 
             Program.quotesList.Reshuffle();
         }
