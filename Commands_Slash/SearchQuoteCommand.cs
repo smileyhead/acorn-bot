@@ -1,7 +1,7 @@
 ﻿using Acorn.Classes;
 using DSharpPlus.Commands;
+using DSharpPlus.Entities;
 using System.ComponentModel;
-using System.Globalization;
 
 namespace Acorn.Commands_Slash
 {
@@ -12,9 +12,13 @@ namespace Acorn.Commands_Slash
         {
             ExecTime SearchQuoteTime = new("Quote-searching", "Searching for quotes");
 
-            await context.RespondAsync(Program.quotesList.Search(query));
+            (DiscordMessageBuilder message, string secondHalf) = Program.quotesList.Search(query);
+
+            await context.RespondAsync(message);
 
             SearchQuoteTime.Stop();
+
+            if (secondHalf != "") { context.Channel.SendMessageAsync(secondHalf); }
         }
     }
 }

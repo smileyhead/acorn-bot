@@ -287,11 +287,11 @@ namespace Acorn.Classes
             return Print(userQuotes[random.Next(0, userQuotes.Count - 1)].Id.ToString(), false, "");
         }
 
-        public string Search(string query)
+        public (DiscordMessageBuilder message, string secondHalf) Search(string query)
         {
             if (query.Length < 3)
             {
-                return "Your query must be at least 3 characters long.";
+                return (new DiscordMessageBuilder().WithContent("Your query must be at least 3 characters long."), "");
             }
             else
             {
@@ -313,11 +313,16 @@ namespace Acorn.Classes
                     }
                 }
 
-                if (resultsI == 0) { return $"There are no results for ‘{query}’."; }
+                if (resultsI == 0) { return (new DiscordMessageBuilder().WithContent($"There are no results for ‘{query}’."), ""); }
+                else if (resultsI == 1)
+                {
+                    (DiscordMessageBuilder message, string secondHalf) = Print(results[0].ToString(), false, $"There is 1 result for ‘{query}’:\n\n");
+
+                    return (message, secondHalf);
+                }
                 else
                 {
-                    if (resultsI == 1) { answer += $"There is 1 result for ‘{query}’:\n\n"; }
-                    else { answer += $"There are {resultsI} results for ‘{query}’:\n\n"; }
+                    answer += $"There are {resultsI} results for ‘{query}’:\n\n";
 
                     for (int i = 0; i < resultsI; i++)
                     {
@@ -335,11 +340,11 @@ namespace Acorn.Classes
 
                         if (answer.Length > 2000)
                         {
-                            return ShortenAnswer(answer);
+                            return (new DiscordMessageBuilder().WithContent(ShortenAnswer(answer)), "");
                         }
                     }
 
-                    return answer;
+                    return (new DiscordMessageBuilder().WithContent(answer), "");
                 }
             }
         }

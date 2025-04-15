@@ -19,9 +19,9 @@ namespace Acorn.Commands_Slash
 
             await context.RespondAsync(message);
 
-            if (secondHalf != "") { context.Channel.SendMessageAsync(secondHalf); }
-
             SpecificQuoteTime.Stop();
+
+            if (secondHalf != "") { context.Channel.SendMessageAsync(secondHalf); }
         }
     }
 }
