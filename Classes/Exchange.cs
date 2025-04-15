@@ -457,7 +457,8 @@ namespace Acorn.Classes
                 eurRates = System.Text.Json.JsonSerializer.Deserialize<EurRates>(readRates);
             }
 
-            LastUpdated = DateTime.ParseExact($"{eurRates.date}-00-00", "yyyy-MM-dd-HH-mm", CultureInfo.InvariantCulture);
+            LastUpdated = DateTime.ParseExact($"{eurRates.date}-06-00", "yyyy-MM-dd-HH-mm", CultureInfo.InvariantCulture);
+            //The API updates at an irregular time between ~3:00–9:00. The 6:00 reference time is meant to average it out.
 
             Currencies = [
                 new Currency("AED", "United Arab Emirates dirham", eurRates.eur.aed),
