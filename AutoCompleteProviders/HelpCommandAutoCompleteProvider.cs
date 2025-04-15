@@ -17,6 +17,7 @@ namespace Acorn.AutoCompleteProviders
                 new DiscordAutoCompleteChoice("/specificquote", "specificquote"),
                 new DiscordAutoCompleteChoice("/quoteby", "quoteby"),
                 new DiscordAutoCompleteChoice("/searchquote", "searchquote"),
+                new DiscordAutoCompleteChoice("/exchange", "exchange"),
                 new DiscordAutoCompleteChoice("/character", "character"),
                 new DiscordAutoCompleteChoice("/roll", "roll"),
                 new DiscordAutoCompleteChoice("/flip", "flip"),
