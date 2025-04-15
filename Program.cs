@@ -14,6 +14,7 @@ namespace Acorn
         static string discordTokenPath = "tock.txt";
         public static string quotesPath = "quotes.json";
         public static string backupsPath = "";
+        public static string currencyPath = "eur.json";
         static string helpArticlesPath = "help.json";
         static string discordToken = File.ReadLines(discordTokenPath).First();
         static DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, DiscordIntents.MessageContents | TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
@@ -22,6 +23,7 @@ namespace Acorn
         public static HelpArticlesList helpArticlesList = new(helpArticlesPath);
         public static QuotesList quotesList = new(debugClient, quotesPath);
         public static Magic8Ball magic8Ball = new();
+        public static Exchange exchange = new();
 
         public async static void PrintDebugMessage(string message)
         {
@@ -51,7 +53,7 @@ namespace Acorn
                     typeof(Commands_Slash.HelpCommand), typeof(Commands_Slash.RollDiceCommand), typeof(Commands_Slash.QuoteCommand),
                     typeof(Commands_Slash.SpecificQuoteCommand), typeof(Commands_Slash.CharacterCommand), typeof(Commands_Slash.FlipCommand),
                     typeof(Commands_Slash.ConvertCommand), typeof(Commands_Slash.SearchQuoteCommand), typeof(Commands_Slash.QuoteByCommand),
-                    typeof(Commands_Slash._8BallCommand),
+                    typeof(Commands_Slash._8BallCommand), typeof(Commands_Slash.ExchangeCommand),
 
                     //Context Menu Commands
                     typeof(Commands_ContextMenu.AddQuoteMenu), typeof(Commands_ContextMenu.UndoAddQuoteMenu),
