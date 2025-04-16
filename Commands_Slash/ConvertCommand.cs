@@ -65,8 +65,8 @@ namespace Acorn.Commands_Slash
 
             else if (!alreadyAnswered)
             {
-                string inputNumberFormatted = inputQuantity.ToString("G2", CultureInfo.CreateSpecificCulture("en-US"));
-                string outputNumberFormatted = inputQuantity.ToUnit(outputQuantity.Unit).ToString("G2", CultureInfo.CreateSpecificCulture("en-US"));
+                string inputNumberFormatted = inputQuantity.ToString("N2", CultureInfo.CreateSpecificCulture("en-US"));
+                string outputNumberFormatted = inputQuantity.ToUnit(outputQuantity.Unit).ToString("N2", CultureInfo.CreateSpecificCulture("en-US"));
 
                 if (char.IsDigit(inputNumberFormatted[inputNumberFormatted.Length - 1])) { inputNumberFormatted += $" {inputUnitSplit[1]}"; }
                 if (char.IsDigit(outputNumberFormatted[outputNumberFormatted.Length - 1])) { outputNumberFormatted += $" {outputUnitSplit[1]}"; }
