@@ -84,7 +84,7 @@ namespace Acorn.Classes
             (success, outputValue, inputName, outputName) = Convert(value, inputCurrency, outputCurrencies[0]);
             if (!success) { return outputName; }
 
-            string answer = $"**{value} {inputName.ToString(CultureInfo.CreateSpecificCulture("en-US"))}** equals…\n" +
+            string answer = $"**{value.ToString("N2", CultureInfo.CreateSpecificCulture("en-US"))} {inputName}** equals…\n" +
                             $"- **{outputValue}** {outputName}\n";
 
             for (int i = 1; i < outputCurrencies.Count; i++)
