@@ -19,7 +19,7 @@ namespace Acorn.Commands_Slash
 
             Program.quotesList.Reshuffle();
 
-            Console.WriteLine($"Random quote index is now {Program.quotesList.GetShuffledIndex}.");
+            Console.WriteLine($"{Program.quotesList.GetShuffledIndex()}/{Program.quotesList.GetQuotesNo()} quotes have been returned.");
         }
     }
 }
