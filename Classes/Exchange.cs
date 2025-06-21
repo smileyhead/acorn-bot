@@ -20,23 +20,24 @@ namespace Acorn.Classes
             Read();
         }
 
-        private void Update()
+        private bool Update()
         {
             if (!File.Exists(Program.currencyPath))
             {
                 Console.WriteLine("  Currency database doesn't exist. Downloading.");
                 Download();
-                return;
+                return true;
             }
 
             if ((DateTime.Now - File.GetLastWriteTime(Program.currencyPath)).TotalHours >= 26)
             {
                 Console.WriteLine("  Currency database deemed too old. Updating.");
                 Download();
-                return;
+                return true;
             }
 
             Console.WriteLine("  Currency database exists and is more recent than 26 hours. Opting not to update.");
+            return false;
         }
 
         private void Download()
@@ -62,6 +63,11 @@ namespace Acorn.Classes
             string outputName;
 
             if (!Double.TryParse(inputValue, CultureInfo.InvariantCulture, out double value)) { return "Error: The input value could not be parsed."; }
+
+            if (Update())
+            {
+                Read();
+            }
 
             if (outputCurrency != "All")
             {
