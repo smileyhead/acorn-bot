@@ -12,6 +12,7 @@ namespace Acorn.Commands_Text
             {
                 case "alcohol": return "https://media.discordapp.net/attachments/1354563761293492506/1354563821578092675/alcohol.png";
                 case "ban": return "Night.";
+                case "coffee": return "https://tenor.com/view/any-body-need-coffee-coffee-gif-15911994";
                 case "creature": return "https://cdn.discordapp.com/attachments/1354563761293492506/1355650421427015790/image.png";
                 case "helpme": return "https://cdn.discordapp.com/attachments/1337097452859428877/1338829503711150080/guy_screaming_for_help_while_holding_a_chick_fil_a_drink.mp4";
                 case "horror": return "https://media.discordapp.net/attachments/1354563761293492506/1354563901668327484/horror_toby.png";
@@ -21,14 +22,16 @@ namespace Acorn.Commands_Text
                 case "selfie": return "This is my router hat and I! (Yes, I share a home with Home Assistant. The label came before me.)\nhttps://cdn.discordapp.com/attachments/1354563761293492506/1355654632805765160/PXL_20250329_212641750.jpg";
                 case "steeve": return "https://cdn.discordapp.com/attachments/1354563761293492506/1355510311070728333/Steeve.mov";
                 case "stop": return "https://media.discordapp.net/attachments/1354563761293492506/1354564769641660486/stop_miku.gif";
+                case "wakeup": return "https://tenor.com/view/i-aint-get-no-sleep-banging-pots-pans-gif-11664925";
+                default: return "Invalid name.";
             }
-            return "Invalid name.";
         }
     }
 
     public class AlcoholShCommand { [Command("alcohol")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("alcohol")); }
     public class BanShCommand { [Command("ban")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("ban")); }
     public class CreatureShCommand { [Command("creature")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("creature")); }
+    public class CoffeeShCommand { [Command("coffee")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("coffee")); }
     public class HelpShCommand { [Command("helpme")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("helpme")); }
     public class HorrorShCommand { [Command("horror")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("horror")); }
     public class NoShCommand { [Command("no")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("no")); }
@@ -37,4 +40,5 @@ namespace Acorn.Commands_Text
     public class SelfieShCommand { [Command("selfie")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("selfie")); }
     public class SteeveShCommand { [Command("steeve")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("steeve")); }
     public class StopShCommand { [Command("stop")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("stop")); }
+    public class WakeupShCommand { [Command("wakeup")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("wakeup")); }
 }
