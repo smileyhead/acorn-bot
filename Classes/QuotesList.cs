@@ -78,6 +78,7 @@ namespace Acorn.Classes
         }
 
         public int GetShuffledIndex() { return ShuffledIndex; }
+        public int GetQuotesNo() { return Quotes.Count; }
         //I know this isn't conventional in C#. I also don't care.
 
         private void Shuffle()

@@ -1,7 +1,5 @@
-﻿using Acorn.Classes;
-using DSharpPlus.Commands;
+﻿using DSharpPlus.Commands;
 using System.ComponentModel;
-using System.Globalization;
 
 namespace Acorn.Commands_Slash
 {
@@ -10,7 +8,7 @@ namespace Acorn.Commands_Slash
         [Command("character"), Description("Prints a randomly-rolled Dungeons and Dragons character block.")]
         public static async ValueTask ExecuteAsync(CommandContext context)
         {
-            ExecTime CharacterTime = new("Character-generating", "Generating a character");
+            await context.DeferResponseAsync();
 
             int[] RollCharacter(int[] set)
             {
@@ -49,8 +47,6 @@ namespace Acorn.Commands_Slash
 
             answer += $"\nTotal: {sums.Sum()}";
             await context.RespondAsync(answer);
-
-            CharacterTime.Stop();
         }
     }
 }

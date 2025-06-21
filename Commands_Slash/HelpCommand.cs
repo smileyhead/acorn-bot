@@ -13,11 +13,9 @@ namespace Acorn.Commands_Slash
             (CommandContext context,
             [Description("The command which you need help with."), SlashAutoCompleteProvider<HelpCommandAutoCompleteProvider>] string command)
         {
-            ExecTime HelpTime = new("Help article-returning", "Returning a help article");
+            await context.DeferResponseAsync();
 
             await context.RespondAsync(Program.helpArticlesList.GetHelp(command));
-
-            HelpTime.Stop();
         }
     }
 }

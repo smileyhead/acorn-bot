@@ -1,5 +1,4 @@
 ﻿using Acorn.AutoCompleteProviders;
-using Acorn.Classes;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using System.ComponentModel;
@@ -16,7 +15,7 @@ namespace Acorn.Commands_Slash
             [Description("The unit you with to convert from."), SlashAutoCompleteProvider<ConvertCommandAutoCompleteProvider>] string inputUnit,
             [Description("The unit you wish to convert to."), SlashAutoCompleteProvider<ConvertCommandAutoCompleteProvider>] string outputUnit)
         {
-            ExecTime ConvertTime = new("Value-converting", "Converting a value");
+            await context.DeferResponseAsync();
 
             bool alreadyAnswered = false;
             bool infiniteValue = false;
@@ -81,8 +80,6 @@ namespace Acorn.Commands_Slash
 
                 await context.RespondAsync(answer);
             }
-
-            ConvertTime.Stop();
         }
     }
 }

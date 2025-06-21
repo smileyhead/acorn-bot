@@ -10,7 +10,7 @@ namespace Acorn.Commands_Slash
         [Command("flip"), Description("Flips a coin.")]
         public static async ValueTask ExecuteAsync(CommandContext context)
         {
-            ExecTime FlipTime = new("Coin-flipping", "Flipping a coin");
+            await context.DeferResponseAsync();
 
             Random random = new Random();
             string answer = "You flip a coin…\n\nIt's ";
@@ -18,8 +18,6 @@ namespace Acorn.Commands_Slash
             else answer += $"{new CoinEmote().GetEmote(false)} tails!";
 
             await context.RespondAsync(answer);
-
-            FlipTime.Stop();
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Acorn.Classes;
-using DSharpPlus.Commands;
+﻿using DSharpPlus.Commands;
 using System.ComponentModel;
 
 namespace Acorn.Commands_Slash
@@ -9,7 +8,7 @@ namespace Acorn.Commands_Slash
         [Command("8ball"), Description("Tells your fortune.")]
         public static async ValueTask ExecuteAsync(CommandContext context, [Description("Your question to the magic 8-ball.")] string question)
         {
-            ExecTime BallinTime = new("Ball-turning", "Turning over the magic 8-ball");
+            await context.DeferResponseAsync();
 
             string answer = "";
 
@@ -21,8 +20,6 @@ namespace Acorn.Commands_Slash
             }
 
             await context.RespondAsync(answer);
-
-            BallinTime.Stop();
         }
     }
 }

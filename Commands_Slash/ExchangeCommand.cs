@@ -14,11 +14,9 @@ namespace Acorn.Commands_Slash
             [Description("The currency you with to convert from."), SlashAutoCompleteProvider<ExchangeCommandAutoCompleteProvider>] string inputCurrency,
             [Description("The currency you with to convert to, or Quick Reference."), SlashAutoCompleteProvider<ExchangeCommandAutoCompleteProvider>] string outputCurrency)
         {
-            ExecTime ExchangeTime = new("Currency-exchanging", "Exchanging currencies");
+            await context.DeferResponseAsync();
 
             await context.RespondAsync(Program.exchange.DoExchange(inputValue, inputCurrency, outputCurrency));
-
-            ExchangeTime.Stop();
         }
     }
 }

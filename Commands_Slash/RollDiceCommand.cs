@@ -1,5 +1,4 @@
-﻿using Acorn.Classes;
-using DSharpPlus.Commands;
+﻿using DSharpPlus.Commands;
 using System.ComponentModel;
 using System.Globalization;
 
@@ -10,7 +9,7 @@ namespace Acorn.Commands_Slash
         [Command("roll"), Description("Rolls n x-sided dice. Example: ‘/r 2d4’. Details: ‘/help r’.")]
         public static async ValueTask ExecuteAsync(CommandContext context, [Description("The number of dice to roll and the number of their sides. Example: ‘2d4’.")] string dice)
         {
-            ExecTime RollTime = new("Dice-rolling", "Rolling dice");
+            await context.DeferResponseAsync();
 
             bool hasReroll = false;
             string[] dicePreSplit = new string[2];
@@ -138,8 +137,6 @@ namespace Acorn.Commands_Slash
                 if (emergencyStopActivated) { answer += $"\n-# Note: The rerolling of one or more of these values exceeded 10 tries. For more information, see: `/help r`."; }
                 return answer;
             }
-
-            RollTime.Stop();
         }
     }
 }
