@@ -17,6 +17,8 @@ namespace Acorn.Commands_Slash
         {
             await context.DeferResponseAsync();
 
+            Console.WriteLine("Converting a value.");
+
             bool alreadyAnswered = false;
             bool infiniteValue = false;
 

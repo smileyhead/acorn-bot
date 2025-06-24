@@ -13,20 +13,22 @@ namespace Acorn.Commands_ContextMenu
         [AllowedProcessors(typeof(MessageCommandProcessor))]
         public async Task AddQuote(MessageCommandContext context, DiscordMessage message)
         {
+            await context.DeferResponseAsync();
+
             var AddQuoteTime = System.Diagnostics.Stopwatch.StartNew();
             Console.WriteLine("Adding a quote.");
 
-            (string firstHalf, string secondHalf) = Program.quotesList.Add(context, message);
+            (string firstHalf, string secondHalf, string alttext) = Program.quotesList.Add(context, message);
 
             await context.RespondAsync(firstHalf);
             AddQuoteTime.Stop();
 
-            if (secondHalf != "") { context.Channel.SendMessageAsync(secondHalf); }
+            if (secondHalf != "") context.Channel.SendMessageAsync(secondHalf);
+            if (alttext != "") context.Channel.SendMessageAsync(alttext);
 
             Program.quotesList.CountQuotes();
 
             Console.WriteLine($"  Quote-adding finished in {AddQuoteTime.ElapsedMilliseconds}ms.");
-            if (AddQuoteTime.ElapsedMilliseconds > 3000) { Program.PrintDebugMessage($"Adding a quote took {AddQuoteTime.ElapsedMilliseconds}ms."); }
         }
     }
 }

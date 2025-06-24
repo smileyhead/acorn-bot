@@ -14,6 +14,8 @@ namespace Acorn.Commands_Slash
         {
             await context.DeferResponseAsync();
 
+            Console.WriteLine("Printing a quote from a chosen person.");
+
             (DiscordMessageBuilder message, string secondHalf) = Program.quotesList.QuoteBy(authorId);
 
             await context.RespondAsync(message);

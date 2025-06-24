@@ -11,6 +11,8 @@ namespace Acorn.Commands_Slash
         {
             await context.DeferResponseAsync();
 
+            Console.WriteLine("Returning a specific quote.");
+
             (DiscordMessageBuilder message, string secondHalf) = Program.quotesList.Print(quoteId, false, "");
 
             await context.RespondAsync(message);

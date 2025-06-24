@@ -11,6 +11,8 @@ namespace Acorn.Commands_Slash
         {
             await context.DeferResponseAsync();
 
+            Console.WriteLine("Performing a search.");
+
             (DiscordMessageBuilder message, string secondHalf) = Program.quotesList.Search(query);
 
             await context.RespondAsync(message);

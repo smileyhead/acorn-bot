@@ -12,6 +12,8 @@ namespace Acorn.Commands_Slash
         {
             await context.DeferResponseAsync();
 
+            Console.WriteLine("Flipping a coin.");
+
             Random random = new Random();
             string answer = "You flip a coin…\n\nIt's ";
             if (random.NextDouble() >= 0.5) { answer += $"{new CoinEmote().GetEmote(true)} heads!"; }

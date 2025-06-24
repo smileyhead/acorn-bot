@@ -15,6 +15,8 @@ namespace Acorn.Commands_Slash
         {
             await context.DeferResponseAsync();
 
+            Console.WriteLine("Offering help.");
+
             await context.RespondAsync(Program.helpArticlesList.GetHelp(command));
         }
     }

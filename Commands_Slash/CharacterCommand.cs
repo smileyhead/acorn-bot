@@ -10,6 +10,8 @@ namespace Acorn.Commands_Slash
         {
             await context.DeferResponseAsync();
 
+            Console.WriteLine("Rolling a character.");
+
             int[] RollCharacter(int[] set)
             {
                 Random random = new Random();

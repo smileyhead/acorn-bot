@@ -10,6 +10,8 @@ namespace Acorn.Commands_Slash
         {
             await context.DeferResponseAsync();
 
+            Console.WriteLine("Turning over a magic 8-ball.");
+
             string answer = "";
 
             if (question == null) answer += "I'm sorry, but I can't tell your fortune if you don't ask me anything!";

@@ -16,6 +16,8 @@ namespace Acorn.Commands_Slash
         {
             await context.DeferResponseAsync();
 
+            Console.WriteLine("Exchanging a currency.");
+
             await context.RespondAsync(Program.exchange.DoExchange(inputValue, inputCurrency, outputCurrency));
         }
     }

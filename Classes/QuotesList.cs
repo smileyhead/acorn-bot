@@ -3,10 +3,9 @@ using DSharpPlus;
 using DSharpPlus.Commands.Processors.MessageCommands;
 using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using UnitsNet;
+using Tesseract;
 
 namespace Acorn.Classes
 {
@@ -123,22 +122,22 @@ namespace Acorn.Classes
             //quotes.json -> /backups/quotes-backup_yyyy-MM-dd-HH-mm-ss.json
         }
 
-        public (string message, string secondHalf) Add(MessageCommandContext context, DiscordMessage message)
+        public (string message, string secondHalf, string alttext) Add(MessageCommandContext context, DiscordMessage message)
         {
             if (Quotes.Any(a => a.Link.Substring(a.Link.LastIndexOf('/') + 1) == message.Id.ToString()))
             {
                 Console.WriteLine("  Error: Quote exists.");
-                return ("This quote already exists!", "");
+                return ("This quote already exists!", "", "");
             }
             else if (message.Author.Id == 1335008063589191721)
             {
                 Console.WriteLine("  Error: Quoting self.");
-                return ("I'm sorry, but I can't quote myself – I don't want to sound arrogant!", "");
+                return ("I'm sorry, but I can't quote myself – I don't want to sound arrogant!", "", "");
             }
             else if (message.Stickers.Count > 0)
             {
                 Console.WriteLine("  Error: Message has sticker.");
-                return ("I'm sorry, but due to Discord's limitations, I can't quote a sticker.\nIf you still wish to quote this message, consider taking a screenshot of it.", "");
+                return ("I'm sorry, but due to Discord's limitations, I can't quote a sticker.\nIf you still wish to quote this message, consider taking a screenshot of it.", "", "");
             }
             else
             {
@@ -152,6 +151,8 @@ namespace Acorn.Classes
                 Quote newQuote = new();
                 newQuote.Id = Quotes.Count;
                 newQuote.Body = message.Content;
+                newQuote.AltText = null;
+                float[] confidences = new float[attachments.Count];
                 newQuote.UserId = author.Id;
                 if (author.GlobalName is null) newQuote.Username = author.Username; //Fall back to username if global nickname isn't present
                 else newQuote.Username = author.GlobalName;
@@ -161,6 +162,10 @@ namespace Acorn.Classes
                     for (int i = 0; i < attachments.Count; i++)
                     {
                         newQuote.Body += $"\n{attachments[i].Url}";
+                        string transcriptionResult;
+                        (transcriptionResult, confidences[i]) = TranscribeImage(attachments[i].Url).Result;
+                        if (i == 0) newQuote.AltText = transcriptionResult;
+                        else newQuote.AltText += $"\n{transcriptionResult}";
                     }
                 }
                 if (newQuote.Body[0] == '\n') { newQuote.Body = newQuote.Body.Substring(1); }
@@ -178,7 +183,31 @@ namespace Acorn.Classes
 
                 (DiscordMessageBuilder printedMessage, string secondHalf) = Print((quotesUnshuffled.Count - 1).ToString(), false, answer);
 
-                return (printedMessage.Content, secondHalf);
+                string alttext = "";
+                if (attachments.Count > 0)
+                {
+                    string alttextPrependage = $"-# Added alt text to quote `#{quotesUnshuffled.Count - 1}`:";
+                    alttext += BlockQuoteify(newQuote.AltText, "> -#");
+
+                    string alttextAppendage = "\n-# ";
+                    if (attachments.Count > 1)
+                    {
+                        alttextAppendage += $"{confidences[0] * 100}%";
+                        for (int i = 1; i < attachments.Count; i++)
+                        {
+                            alttextAppendage += $", {confidences[i] * 100}%";
+                        }
+                        alttextAppendage += " confidence, respectfully";
+                    }
+                    else alttextAppendage += $"{confidences[0] * 100}% confidence";
+                    alttextAppendage += $" – use `.alttext {quotesUnshuffled.Count - 1} Your text here` to overwrite.";
+
+                    if (alttextPrependage.Length + alttext.Length + alttextAppendage.Length > 2000)
+                        alttext = Shorten(alttext, alttextPrependage, $"…\n-# (Not all text can be displayed. Character limit reached.){alttextAppendage}");
+                    else alttext = alttextPrependage + alttext + alttextAppendage;
+                }
+
+                return (printedMessage.Content, secondHalf, alttext);
             }
         }
 
@@ -207,6 +236,23 @@ namespace Acorn.Classes
                 LastQuoter = null; //Prevent any further undo operations.
                 return $"Quoting undone. The most recent quote is now `#{Quotes.Count - 1}`.";
             }
+        }
+
+        public string OverwriteAlttext(string quoteIdInput, string text)
+        {
+            int quoteId;
+            if (quoteIdInput[0] == '#')
+            {
+                if (!Int32.TryParse(quoteIdInput.Substring(1), out quoteId)) return "Sorry, but the quote ID could not be parsed.";
+            }
+            else if (!Int32.TryParse(quoteIdInput, out quoteId)) return "Sorry, but the quote ID could not be parsed.";
+
+            Quotes[Quotes.IndexOf(Quotes.Where(a => a.Id == quoteId).FirstOrDefault())].AltText = text;
+            CreateBackup();
+            List<Quote> quotesUnshuffled = Quotes.OrderBy(o => o.Id).ToList();
+            WriteToFile(quotesUnshuffled);
+
+            return "Alt text overwritten.";
         }
 
         private void RestoreBackup()
@@ -242,18 +288,14 @@ namespace Acorn.Classes
             if (!isShuffled) { quotesList = Quotes.OrderBy(o => o.Id).ToList(); Console.WriteLine("    Unshuffled quotes list created."); }
 
             messageContent += $"`#{quotesList[id].Id}` **{quotesList[id].Username}** [said]({quotesList[id].Link}):";
-            string[] bodySplit = quotesList[id].Body.Split('\n');
-            for (int i = 0; i < bodySplit.Count(); i++)
-            {
-                messageContent += $"\n> {bodySplit[i]}";
-            }
+            messageContent += BlockQuoteify(quotesList[id].Body, ">");
 
             if (isShuffled) ShuffledIndex++;
 
             if (messageContent.Length > 2000)
             {
                 var regex = Regex.Match(messageContent.Substring(messageContent.Length - messageContent.Length / 3), "([\n.?!;, ])");
-                
+
                 if (regex.Success)
                 {
                     int splitIndex = messageContent.Length - messageContent.Length / 3 + regex.Index + 1;
@@ -301,47 +343,48 @@ namespace Acorn.Classes
                 string quote = "";
                 string username = "";
                 List<Quote> quotesUnshuffled = Quotes.OrderBy(o => o.Id).ToList();
-
-                int[] results = new int[quotesUnshuffled.Count];
-                int resultsI = 0;
+                List<SearchResult> results = new();
 
                 for (int i = 0; i < quotesUnshuffled.Count; i++)
                 {
-                    if (quotesUnshuffled[i].Body.Contains(query, StringComparison.OrdinalIgnoreCase))
-                    {
-                        results[resultsI] = i;
-                        resultsI++;
-                    }
+                    if (quotesUnshuffled[i].Body.Contains(query, StringComparison.OrdinalIgnoreCase)) results.Add(new SearchResult(quotesUnshuffled[i], false));
+                    if (quotesUnshuffled[i].AltText != null && quotesUnshuffled[i].AltText.Contains(query, StringComparison.OrdinalIgnoreCase)) results.Add(new SearchResult(quotesUnshuffled[i], true));
                 }
 
-                if (resultsI == 0) { return (new DiscordMessageBuilder().WithContent($"There are no results for ‘{query}’."), ""); }
-                else if (resultsI == 1)
+                if (results.Count == 0) { return (new DiscordMessageBuilder().WithContent($"There are no results for ‘{query}’."), ""); }
+                else if (results.Count == 1)
                 {
-                    (DiscordMessageBuilder message, string secondHalf) = Print(results[0].ToString(), false, $"There is 1 result for ‘{query}’:\n\n");
+                    (DiscordMessageBuilder message, string secondHalf) = Print(results[0].Quote.Id.ToString(), false, $"There is 1 result for ‘{query}’:\n\n");
 
                     return (message, secondHalf);
                 }
                 else
                 {
-                    answer += $"There are {resultsI} results for ‘{query}’:\n\n";
+                    answer += $"There are {results.Count} results for ‘{query}’:\n\n";
 
-                    for (int i = 0; i < resultsI; i++)
+                    for (int i = 0; i < results.Count; i++)
                     {
-                        answer += $"`#{quotesUnshuffled[results[i]].Id}` **{quotesUnshuffled[results[i]].Username}:** ";
-                        quote = quotesUnshuffled[results[i]].Body;
+                        answer += $"`#{results[i].Quote.Id}` **{results[i].Quote.Username}:** ";
+                        if (results[i].IsAltText) quote = results[i].Quote.AltText;
+                        else quote = results[i].Quote.Body;
 
-                        if (quote.IndexOf(query) > 25)
+                        if (quote.Length - quote.IndexOf(query) > 50)
                         {
-                            quote = $"…{quotesUnshuffled[results[i]].Body.Substring(quotesUnshuffled[results[i]].Body.IndexOf(query) - 10)}";
+                            if (quote.IndexOf(query) > 25)
+                            {
+                                quote = $"…{quote.Substring(quote.IndexOf(query) - 10)}";
+                            }
+
+                            if (quote.Length > 50) { quote = $"{quote.Substring(0, 50)}…"; }
                         }
+                        else if (quote.Length > 50) quote = $"…{quote.Substring(quote.Length - 50)}";
 
-                        if (quote.Length > 50) { quote = $"{quote.Substring(0, 50)}…"; }
-
-                        answer += $"‘{FlushFormatting(quote)}’\n";
+                        if (results[i].IsAltText) answer += $"🖼️ ‘{FlushFormatting(quote)}’\n";
+                        else answer += $"‘{FlushFormatting(quote)}’\n";
 
                         if (answer.Length > 2000)
                         {
-                            return (new DiscordMessageBuilder().WithContent(ShortenAnswer(answer)), "");
+                            return (new DiscordMessageBuilder().WithContent(Shorten(answer, "", "\n-# Not all results can be displayed. Character limit reached.")), "");
                         }
                     }
 
@@ -365,18 +408,61 @@ namespace Acorn.Classes
             return regex.Replace(input, replacement);
         }
 
-        private string ShortenAnswer(string input)
+        private string Shorten(string input, string prepend, string append)
         {
-            string append = "\n-# Not all results can be displayed. Character limit reached.";
-
-            while (input.Length + append.Length > 2000)
+            while (prepend.Length + input.Length + append.Length > 2000)
             {
                 input = input.Substring(0, input.LastIndexOf('\n'));
             }
 
-            input += append;
+            string output = prepend + input + append;
 
-            return input;
+            return output;
+        }
+
+        private string BlockQuoteify(string input, string prepend)
+        {
+            string[] bodySplit = input.Split('\n');
+            string output = "";
+            for (int i = 0; i < bodySplit.Count(); i++)
+            {
+                output += $"\n{prepend} {bodySplit[i]}";
+            }
+
+            return output;
+        }
+
+        public async Task<(string text, float confidence)> TranscribeImage(string url)
+        {
+            HttpClient client = new HttpClient();
+            byte[] image = await client.GetByteArrayAsync(url);
+
+            using (TesseractEngine engine = new(@"./tessdata", "eng", EngineMode.Default))
+            {
+                using (Pix img = Pix.LoadFromMemory(image))
+                {
+                    using (Page page = engine.Process(img))
+                    {
+                        string txt = page.GetText();
+
+                        //Cleaning up
+                        txt = txt.Replace("|", "I");
+                        for (int i = 0; i < 5; i++)
+                        {
+                            if (!txt.Contains("\n\n")) break;
+                            txt = txt.Replace("\n\n", "\n");
+                        }
+                        for (int i = 0; i < 5; i++)
+                        {
+                            if (!txt.Contains("\n \n")) break;
+                            txt = txt.Replace("\n \n", "\n");
+                        }
+                        while (txt[txt.Length - 1] == '\n') txt = txt.Remove(txt.Length - 1);
+
+                        return (txt, page.GetMeanConfidence());
+                    }
+                }
+            }
         }
     }
 }

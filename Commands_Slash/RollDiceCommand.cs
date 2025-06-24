@@ -11,6 +11,8 @@ namespace Acorn.Commands_Slash
         {
             await context.DeferResponseAsync();
 
+            Console.WriteLine("Rolling dice.");
+
             bool hasReroll = false;
             string[] dicePreSplit = new string[2];
             int[] diceSplit = new int[2];
