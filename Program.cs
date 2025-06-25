@@ -59,7 +59,7 @@ namespace Acorn
                     typeof(Commands_ContextMenu.AddQuoteMenu), typeof(Commands_ContextMenu.UndoAddQuoteMenu),
 
                     //Text Commands
-                    typeof(Commands_Text.MessageCommand), typeof(Commands_Text.ReplyToCommand), typeof(Commands_Text.AlttextCommand),
+                    typeof(Commands_Text.MessageCommand), typeof(Commands_Text.ReplyToCommand), typeof(Commands_Text.AlttextCommand), typeof(Commands_Text.DiskCommand),
                     typeof(Commands_Text.AlcoholShCommand), typeof(Commands_Text.BanShCommand), typeof(Commands_Text.CreatureShCommand), typeof(Commands_Text.CoffeeShCommand),
                     typeof(Commands_Text.HelpShCommand), typeof(Commands_Text.HorrorShCommand), typeof(Commands_Text.NoShCommand),
                     typeof(Commands_Text.ŐShCommand), typeof(Commands_Text.PirateShCommand), typeof(Commands_Text.SelfieShCommand),
