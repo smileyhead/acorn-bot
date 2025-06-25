@@ -6,7 +6,7 @@ namespace Acorn.Commands_Slash
 {
     public class RollDiceCommand
     {
-        [Command("roll"), Description("Rolls n x-sided dice. Example: ‘/r 2d4’. Details: ‘/help r’.")]
+        [Command("roll"), Description("Rolls n x-sided dice. Example: ‘/r 2d4’. Details: ‘/help roll’.")]
         public static async ValueTask ExecuteAsync(CommandContext context, [Description("The number of dice to roll and the number of their sides. Example: ‘2d4’.")] string dice)
         {
             await context.DeferResponseAsync();
@@ -27,22 +27,22 @@ namespace Acorn.Commands_Slash
             string answer = declare.answer;
             bool alreadyAnswered = declare.alreadyAnswered;
 
-            if (!dice.Contains('d')) { answer = "Error: Your input has no `d`. For help, see: `/help r`."; alreadyAnswered = true; }
+            if (!dice.Contains('d')) { answer = "Error: Your input has no `d`. For help, see: `/help roll`."; alreadyAnswered = true; }
 
             if (!alreadyAnswered)
             {
                 if (dice[0] == 'd')
                 {
-                    if (!int.TryParse(dice.Substring(1), out diceSplit[1])) { answer = "Error: Invalid format. For help, see: `/help r`."; }
-                    else if (diceSplit[1] < 1 || diceSplit[1] > 100) { answer = "Error: The number of dice or the number of sides falls outside of the accepted range. For help, see: `/help r`."; }
+                    if (!int.TryParse(dice.Substring(1), out diceSplit[1])) { answer = "Error: Invalid format. For help, see: `/help roll`."; }
+                    else if (diceSplit[1] < 1 || diceSplit[1] > 100) { answer = "Error: The number of dice or the number of sides falls outside of the accepted range. For help, see: `/help roll`."; }
                     else { answer = RollDice(1, diceSplit[1], modifierType, modifier, hasReroll); }
                 }
                 else
                 {
                     dicePreSplit = dice.Split('d');
-                    if (!int.TryParse(dicePreSplit[0], out diceSplit[0])) { answer = "Error: Invalid format. For help, see: `/help r`."; }
-                    else if (!int.TryParse(dicePreSplit[1], out diceSplit[1])) { answer = "Error: Invalid format. For help, see: `/help r`."; }
-                    else if (diceSplit[0] < 1 || diceSplit[0] > 10 || diceSplit[1] < 1 || diceSplit[1] > 100) { answer = "Error: The number of dice or the number of sides falls outside of the accepted range. For help, see: `/help r`."; }
+                    if (!int.TryParse(dicePreSplit[0], out diceSplit[0])) { answer = "Error: Invalid format. For help, see: `/help roll`."; }
+                    else if (!int.TryParse(dicePreSplit[1], out diceSplit[1])) { answer = "Error: Invalid format. For help, see: `/help roll`."; }
+                    else if (diceSplit[0] < 1 || diceSplit[0] > 10 || diceSplit[1] < 1 || diceSplit[1] > 100) { answer = "Error: The number of dice or the number of sides falls outside of the accepted range. For help, see: `/help roll`."; }
                     else { answer = RollDice(diceSplit[0], diceSplit[1], modifierType, modifier, hasReroll); }
                 }
             }
@@ -65,7 +65,7 @@ namespace Acorn.Commands_Slash
                 {
                     if (!int.TryParse(dice.Substring(dice.IndexOf(modifierType) + 1), out modifier))
                     {
-                        answer = "Error: Incorrect format. For help, see `/help r`.";
+                        answer = "Error: Incorrect format. For help, see `/help roll`.";
                         alreadyAnswered = true;
                     }
                     dice = dice.Remove(dice.IndexOf(modifierType));
@@ -136,7 +136,7 @@ namespace Acorn.Commands_Slash
                 }
                 else if (diceN > 1) { answer += $"→ {FormatNumber(rolls.Sum())}"; }
 
-                if (emergencyStopActivated) { answer += $"\n-# Note: The rerolling of one or more of these values exceeded 10 tries. For more information, see: `/help r`."; }
+                if (emergencyStopActivated) { answer += $"\n-# Note: The rerolling of one or more of these values exceeded 10 tries. For more information, see: `/help roll`."; }
                 return answer;
             }
         }

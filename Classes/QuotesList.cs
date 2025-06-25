@@ -280,8 +280,8 @@ namespace Acorn.Classes
                 if (id_input[0] == '#') { id_input = id_input.Remove(0, 1); }
 
                 if (id_input.ToLower() == "latest") { id = Quotes.Count - 1; }
-                else if (!int.TryParse(id_input, out id)) { return (new DiscordMessageBuilder().WithContent("Error: Invalid format. For help, see: `/help sq`."), ""); }
-                else if (id < 0 || id > Quotes.Count() - 1) { return (new DiscordMessageBuilder().WithContent("Error: The specified number falls outside the accepted range. For help, see: `/help sq`."), ""); }
+                else if (!int.TryParse(id_input, out id)) { return (new DiscordMessageBuilder().WithContent("Error: Invalid format. For help, see: `/help searchquote`."), ""); }
+                else if (id < 0 || id > Quotes.Count() - 1) { return (new DiscordMessageBuilder().WithContent("Error: The specified number falls outside the accepted range. For help, see: `/help searchquote`."), ""); }
             }
 
             List<Quote> quotesList = Quotes;
