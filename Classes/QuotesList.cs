@@ -153,6 +153,7 @@ namespace Acorn.Classes
                 newQuote.Body = message.Content;
                 newQuote.AltText = null;
                 float[] confidences = new float[attachments.Count];
+                bool transcriptionFailure = false;
                 newQuote.UserId = author.Id;
                 if (author.GlobalName is null) newQuote.Username = author.Username; //Fall back to username if global nickname isn't present
                 else newQuote.Username = author.GlobalName;
@@ -163,7 +164,17 @@ namespace Acorn.Classes
                     {
                         newQuote.Body += $"\n{attachments[i].Url}";
                         string transcriptionResult;
-                        (transcriptionResult, confidences[i]) = TranscribeImage(attachments[i].Url).Result;
+                        try
+                        {
+                            (transcriptionResult, confidences[i]) = TranscribeImage(attachments[i].Url).Result;
+                        }
+                        catch (Exception ex)
+                        {
+                            transcriptionFailure = true;
+                            transcriptionResult = "";
+                            confidences[i] = 0;
+                            Program.PrintDebugMessage($"Failed to transcribe an image. Error:\n`{ex}`".Substring(0, 2000));
+                        }
                         if (i == 0) newQuote.AltText = transcriptionResult;
                         else newQuote.AltText += $"\n{transcriptionResult}";
                     }
@@ -206,8 +217,9 @@ namespace Acorn.Classes
                         alttext = Shorten(alttext, alttextPrependage, $"…\n-# (Not all text can be displayed. Character limit reached.){alttextAppendage}");
                     else alttext = alttextPrependage + alttext + alttextAppendage;
                 }
+                if (transcriptionFailure) alttext = $"-# Failed to transcribe an image. Use `.alttext {quotesUnshuffled.Count - 1} Your text here` to add manually.";
 
-                return (printedMessage.Content, secondHalf, alttext);
+                    return (printedMessage.Content, secondHalf, alttext);
             }
         }
 
