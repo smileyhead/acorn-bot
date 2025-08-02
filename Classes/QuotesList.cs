@@ -145,6 +145,7 @@ namespace Acorn.Classes
                 DiscordUser? author = message.Author;
                 IReadOnlyList<DiscordAttachment> attachments = message.Attachments;
 
+                if (!File.Exists(QuotesPath)) RestoreBackup();
                 CreateBackup();
 
                 List<Quote> quotesUnshuffled = Quotes.OrderBy(o => o.Id).ToList();
@@ -269,6 +270,7 @@ namespace Acorn.Classes
 
         private void RestoreBackup()
         {
+            Console.WriteLine("  Restoring backup.");
             var directory = new DirectoryInfo(Program.backupsPath);
             var latestBackup = directory.GetFiles().OrderByDescending(f => f.LastWriteTime).First();
             File.Move($"{Program.backupsPath}{latestBackup.Name}", QuotesPath, true);
