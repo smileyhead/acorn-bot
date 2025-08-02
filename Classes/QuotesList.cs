@@ -208,7 +208,7 @@ namespace Acorn.Classes
                         {
                             alttextAppendage += $", {confidences[i] * 100}%";
                         }
-                        alttextAppendage += " confidence, respectfully";
+                        alttextAppendage += " confidence, respectively";
                     }
                     else alttextAppendage += $"{confidences[0] * 100}% confidence";
                     alttextAppendage += $" – use `.alttext {quotesUnshuffled.Count - 1} Your text here` to overwrite.";
