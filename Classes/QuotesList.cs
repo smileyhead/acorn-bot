@@ -174,7 +174,6 @@ namespace Acorn.Classes
                             transcriptionFailure = true;
                             transcriptionResult = "";
                             confidences[i] = 0;
-                            Program.PrintDebugMessage($"Failed to transcribe an image. Error:\n`{ex}`".Substring(0, 2000));
                         }
                         if (i == 0) newQuote.AltText = transcriptionResult;
                         else newQuote.AltText += $"\n{transcriptionResult}";
