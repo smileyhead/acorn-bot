@@ -49,7 +49,7 @@
   },
   {
 	"Command": "textcommands",
-	"HelpText": "Text commands are commands which can be recalled using a ‘.’ prefix instead of a ‘/’. Text commands do not show up in the auto-complete list, so they will not interfere with everyday usage of the bot. These commands are generally less technical than slash commands, and mostly consist of simple responses.\n\nThe current list of text commands is as follows:\n`.alcohol`: We will need a lot of alcohol.\n`.ban`: Night.\n`.coffee`: WHO WANTS COFFEE?\n`.creature`: Posts a picture of Homunculus Loxodontus (nicknamed Zhdun, ‘The One Who Waits,’ Snorp, or WOSH).\n`.helpme`: HELP!\n`.horror`: AAAAAAAAAA\n`.no`: I respectfully decline.\n`.ő` (*alt.*: `.o`): Ő\n`.pirate`: You are a Pirate!\n`.selfie`: Posts a picture of me!\n`.steeve`: He walk.\n`.stop`: Please stop it.\n`.wakeup`: [bangs trays]"
+	"HelpText": "Text commands are commands which can be recalled using a ‘.’ prefix instead of a ‘/’. Text commands do not show up in the auto-complete list, so they will not interfere with everyday usage of the bot. These commands are generally less technical than slash commands, and mostly consist of simple responses.\n\nThe current list of text commands is as follows:\n`.alcohol`: We will need a lot of alcohol.\n`.ban`: Night.\n`.coffee`: WHO WANTS COFFEE?\n`.creature`: Posts a picture of Homunculus Loxodontus (nicknamed Zhdun, ‘The One Who Waits,’ Snorp, or WOSH).\n`.helpme`: HELP!\n`.horror`: AAAAAAAAAA\n`.no`: I respectfully decline.\n`.ő` (*alt.*: `.o`): Ő\n`.pirate`: You are a Pirate!\n`.q`: Posts a reminder on how to add and undo quotes.\n`.selfie`: Posts a picture of me!\n`.steeve`: He walk.\n`.stop`: Please stop it.\n`.wakeup`: [bangs trays]"
   },
   {
 	"Command": "exchange",
