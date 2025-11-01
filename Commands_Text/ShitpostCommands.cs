@@ -19,6 +19,7 @@ namespace Acorn.Commands_Text
                 case "no": return "https://media.discordapp.net/attachments/1354563761293492506/1354563944114684075/no.jpg";
                 case "ő": return "https://media.discordapp.net/attachments/1354563761293492506/1355655288006639666/image0.png";
                 case "pirate": return "https://media.discordapp.net/attachments/1354563761293492506/1354564017263476776/pirate.jpg";
+                case "q": return "**Add a quote:** Right-click *(or tap and hold)* → Apps → Add Quote.\n**Undo the most recent quote:** Right-click *(or tap and hold)* → Apps → Undo Last Quote.";
                 case "selfie": return "This is my router hat and I! (Yes, I share a home with Home Assistant. The label came before me.)\nhttps://cdn.discordapp.com/attachments/1354563761293492506/1355654632805765160/PXL_20250329_212641750.jpg";
                 case "steeve": return "https://cdn.discordapp.com/attachments/1354563761293492506/1355510311070728333/Steeve.mov";
                 case "stop": return "https://media.discordapp.net/attachments/1354563761293492506/1354564769641660486/stop_miku.gif";
@@ -37,6 +38,7 @@ namespace Acorn.Commands_Text
     public class NoShCommand { [Command("no")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("no")); }
     public class ŐShCommand { [Command("o"), TextAlias("ő")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("ő")); }
     public class PirateShCommand { [Command("pirate")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("pirate")); }
+    public class QuoteShCommand { [Command("q")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("q")); }
     public class SelfieShCommand { [Command("selfie")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("selfie")); }
     public class SteeveShCommand { [Command("steeve")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("steeve")); }
     public class StopShCommand { [Command("stop")] public static async ValueTask TextOnlyAsync(TextCommandContext context) => await context.RespondAsync(new ShitpostReply().GetReply("stop")); }
