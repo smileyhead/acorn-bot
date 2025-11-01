@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dangl.Calculator" Version="2.2.0" />
     <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02554" />
     <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02554" />
     <PackageReference Include="Tesseract" Version="5.2.0" />

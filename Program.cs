@@ -53,7 +53,7 @@ namespace Acorn
                     typeof(Commands_Slash.HelpCommand), typeof(Commands_Slash.RollDiceCommand), typeof(Commands_Slash.QuoteCommand),
                     typeof(Commands_Slash.SpecificQuoteCommand), typeof(Commands_Slash.CharacterCommand), typeof(Commands_Slash.FlipCommand),
                     typeof(Commands_Slash.ConvertCommand), typeof(Commands_Slash.SearchQuoteCommand), typeof(Commands_Slash.QuoteByCommand),
-                    typeof(Commands_Slash._8BallCommand), typeof(Commands_Slash.ExchangeCommand),
+                    typeof(Commands_Slash._8BallCommand), typeof(Commands_Slash.ExchangeCommand), typeof(Commands_Slash.CalculateCommand),
 
                     //Context Menu Commands
                     typeof(Commands_ContextMenu.AddQuoteMenu), typeof(Commands_ContextMenu.UndoAddQuoteMenu),
