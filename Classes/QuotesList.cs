@@ -459,7 +459,7 @@ namespace Acorn.Classes
                         string txt = page.GetText();
 
                         //Cleaning up
-                        txt = txt.Replace("|", "I");
+                        txt = txt.Replace("|", "I"); //Misidentifying the capital 'I' as '|' seems very common.
                         for (int i = 0; i < 5; i++)
                         {
                             if (!txt.Contains("\n\n")) break;
