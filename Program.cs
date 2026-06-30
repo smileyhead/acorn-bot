@@ -13,6 +13,7 @@ namespace Acorn
     {
         static string discordTokenPath = "tock.txt";
         public static string quotesPath = "quotes.json";
+        public static string queuePath = "list.toml";
         public static string backupsPath = "";
         public static string currencyPath = "eur.json";
         static string helpArticlesPath = "help.json";
@@ -21,7 +22,7 @@ namespace Acorn
         public static DiscordClient debugClient = builder.Build();
         static DiscordChannel debugChannel;
         public static HelpArticlesList helpArticlesList = new(helpArticlesPath);
-        public static QuotesList quotesList = new(debugClient, quotesPath);
+        public static QuotesList quotesList = new(debugClient, quotesPath, queuePath);
         public static Magic8Ball magic8Ball = new();
         public static Exchange exchange = new();
 

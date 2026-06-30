@@ -1,6 +1,6 @@
 ﻿namespace Acorn.Records
 {
-    internal record Quote
+    public record Quote
     {
         public int Id { get; set; }
         public string? Body { get; set; }

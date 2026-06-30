@@ -1,39 +1,51 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="tock.txt" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Remove="tock.txt"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Dangl.Calculator" Version="2.2.0" />
-    <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02554" />
-    <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02554" />
-    <PackageReference Include="Tesseract" Version="5.2.0" />
-    <PackageReference Include="UnitsNet" Version="6.0.0-pre017" />
-  </ItemGroup>
+    <Target Name="CopyJavaScript" AfterTargets="AfterBuild">
+        <ItemGroup>
+            <JavaScriptModulesFolder Include="JS_Modules\**\*"/>
+        </ItemGroup>
+        
+        <Copy SourceFiles="Scripts\DiceRoller.mjs" DestinationFolder="$(OutDir)\Scripts" />
+        <Copy SourceFiles="@(JavaScriptModulesFolder)" DestinationFolder="$(OutDir)\JS_Modules\%(RecursiveDir)" />
+    </Target>
+    
+    <ItemGroup>
+        <PackageReference Include="Dangl.Calculator" Version="2.2.0"/>
+        <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02566"/>
+        <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02566"/>
+        <PackageReference Include="Microsoft.ClearScript.Core" Version="7.5.0"/>
+        <PackageReference Include="Microsoft.ClearScript.V8" Version="7.5.0"/>
+        <PackageReference Include="Tesseract" Version="5.2.0"/>
+        <PackageReference Include="Tomlyn" Version="2.9.0" />
+        <PackageReference Include="UnitsNet" Version="6.0.0-pre019"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <None Update="help.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="quotes.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="tessdata\eng.traineddata">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Update="help.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="quotes.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="tessdata\eng.traineddata">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="tessdata\" />
-  </ItemGroup>
+    <ItemGroup>
+        <Folder Include="tessdata\"/>
+    </ItemGroup>
 
 </Project>

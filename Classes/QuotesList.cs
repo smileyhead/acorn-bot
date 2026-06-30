@@ -6,6 +6,7 @@ using DSharpPlus.Exceptions;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Tesseract;
+using Tomlyn;
 
 namespace Acorn.Classes
 {
@@ -13,11 +14,12 @@ namespace Acorn.Classes
     {
         private static List<Quote> Quotes;
         private static int ShuffledIndex;
+        private static int[] ShuffledIds;
         private static string QuotesPath;
         private static ulong? LastQuoter;
         public List<User>? Users;
 
-        public QuotesList(DiscordClient client, string quotesPath)
+        public QuotesList(DiscordClient client, string quotesPath, string listPath)
         {
             QuotesPath = quotesPath;
 
@@ -72,33 +74,100 @@ namespace Acorn.Classes
             Console.WriteLine("  Filling up quote counters.");
             CountQuotes();
 
-            Console.WriteLine("  Shuffling quotes.");
-            Shuffle();
+            if (File.Exists(listPath))
+            {
+                Console.WriteLine("  Loading previous quotes queue.");
+                LoadQueue();
+            }
+            else
+            {
+                Console.WriteLine("  Shuffling quotes.");
+                Quotes = Shuffle(Quotes, true);
+            }
+            
+            SaveQueue();
         }
 
         public int GetShuffledIndex() { return ShuffledIndex; }
         public int GetQuotesNo() { return Quotes.Count; }
         //I know this isn't conventional in C#. I also don't care.
 
-        private void Shuffle()
+        private void LoadQueue()
         {
-            Console.Write("  Shuffling the shuffled quotes list. ");
-            Random random = new Random();
-            for (int i = 0; i < Quotes.Count - 1; i++)
+            void ShuffleInstead(string error)
             {
-                int r = random.Next(i, Quotes.Count);
-                (Quotes[r], Quotes[i]) = (Quotes[i], Quotes[r]);
+                Console.WriteLine(error);
+                Quotes = Shuffle(Quotes, true);
             }
-            ShuffledIndex = 0;
-            Console.WriteLine($"Shuffled list index set to {ShuffledIndex}");
+            
+            QuotesQueue? order;
+            try { order = TomlSerializer.Deserialize<QuotesQueue>(File.ReadAllText(Program.queuePath)); }
+            catch(Exception e)
+            {
+                ShuffleInstead($"  Failed to load quotes queue. Shuffling instead. Error: {e.Message}");
+                return;
+            }
+            
+            List<Quote> reorderedQuotes = [];
+            if (order?.Ids == null || order?.Ids.Count == 0)
+            {
+                ShuffleInstead("  The loaded quotes queue is null or empty. Shuffling instead.");
+                return;
+            }
+            
+            for (int i = 0; i < order.Count(); i++)
+            {
+                reorderedQuotes.Add(Quotes[order.Ids[i]]);
+            }
+
+            if (Quotes.Count != reorderedQuotes.Count)
+            {
+                Console.WriteLine("  Discrepancy between loaded and actual quotes count. Shuffling remainder.");
+                reorderedQuotes.AddRange(Shuffle(Quotes.Except(reorderedQuotes).ToList()));
+            }
+            
+            Quotes = reorderedQuotes;
+
+            if (order?.Index == null)
+            {
+                Console.WriteLine("  Loaded quote index is null. Setting to 0.");
+                ShuffledIndex = 0;
+            }
+            else ShuffledIndex = order.Index;
+        }
+
+        private void SaveQueue()
+        {
+            QuotesQueue quotesList = new QuotesQueue(Quotes, ShuffledIndex);
+            ShuffledIds = quotesList.Ids.ToArray();
+            
+            var toml = TomlSerializer.Serialize(quotesList);
+            File.WriteAllText(Program.queuePath, toml);
+            
+            Console.WriteLine("  Saved shuffled quote queue.");
+        }
+
+        private List<Quote> Shuffle(List<Quote> list, bool resetIndex = false)
+        {
+            Console.Write("  Shuffling the shuffled quotes queue. ");
+            Random random = new Random();
+            for (int i = 0; i < list.Count - 1; i++)
+            {
+                int r = random.Next(i, list.Count);
+                (list[r], list[i]) = (list[i], list[r]);
+            }
+            if (resetIndex) ShuffledIndex = 0;
+            Console.WriteLine($"Shuffled queue index set to {ShuffledIndex}");
+
+            return list;
         }
 
         public void Reshuffle()
         {
             if (ShuffledIndex >= Quotes.Count)
             {
-                Console.WriteLine("The shuffled quotes list has reached its end. Reshuffling.");
-                Shuffle();
+                Console.WriteLine("The shuffled quotes queue has reached its end. Reshuffling.");
+                Quotes = Shuffle(Quotes, true);
             }
         }
 
@@ -219,7 +288,8 @@ namespace Acorn.Classes
                 }
                 if (transcriptionFailure) alttext = $"-# Failed to transcribe an image. Use `.alttext {quotesUnshuffled.Count - 1} Your text here` to add manually.";
 
-                    return (printedMessage.Content, secondHalf, alttext);
+                SaveQueue();
+                return (printedMessage.Content, secondHalf, alttext);
             }
         }
 
@@ -237,17 +307,16 @@ namespace Acorn.Classes
                 Console.WriteLine("  Last quoter is null.");
                 return "I'm sorry, but only the most recently added quote may be undone.";
             }
-            else if (context.User.Id != LastQuoter)
+            
+            if (context.User.Id != LastQuoter)
             {
                 Console.WriteLine("  Command user / Last quoter mismatch.");
                 return "I'm sorry, but only the person who added the last quote may undo it.";
             }
-            else
-            {
-                RestoreBackup();
-                LastQuoter = null; //Prevent any further undo operations.
-                return $"Quoting undone. The most recent quote is now `#{Quotes.Count - 1}`.";
-            }
+
+            RestoreBackup();
+            LastQuoter = null; //Prevent any further undo operations.
+            return $"Quoting undone. The most recent quote is now `#{Quotes.Count - 1}`.";
         }
 
         public string OverwriteAlttext(string quoteIdInput, string text)
@@ -275,6 +344,7 @@ namespace Acorn.Classes
             File.Move($"{Program.backupsPath}{latestBackup.Name}", QuotesPath, true);
 
             Quotes.Remove(Quotes.OrderByDescending(q => q.Id).First());
+            SaveQueue();
         }
 
         public (DiscordMessageBuilder message, string secondHalf) Print(string id_input, bool isShuffled, string prefix)
@@ -303,7 +373,11 @@ namespace Acorn.Classes
             messageContent += $"`#{quotesList[id].Id}` **{quotesList[id].Username}** [said]({quotesList[id].Link}):";
             messageContent += BlockQuoteify(quotesList[id].Body, ">");
 
-            if (isShuffled) ShuffledIndex++;
+            if (isShuffled)
+            {
+                ShuffledIndex++;
+                SaveQueue();
+            }
 
             if (messageContent.Length > 2000)
             {
