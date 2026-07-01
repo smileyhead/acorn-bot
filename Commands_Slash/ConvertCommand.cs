@@ -3,6 +3,7 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using System.ComponentModel;
 using System.Globalization;
+using Acorn.Classes;
 using UnitsNet;
 
 namespace Acorn.Commands_Slash
@@ -27,6 +28,8 @@ namespace Acorn.Commands_Slash
                 infiniteValue = true;
                 inputValue = "1";
             }
+            
+            inputValue = NumberExpander.Expand(inputValue);
 
             if (!double.TryParse(inputValue, CultureInfo.InvariantCulture, out double inputDouble))
             {
