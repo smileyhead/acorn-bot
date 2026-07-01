@@ -5,8 +5,11 @@ using DSharpPlus.Entities;
 using DSharpPlus.Exceptions;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.FileIO;
 using Tesseract;
 using Tomlyn;
+using FileSystem = Microsoft.VisualBasic.FileIO.FileSystem;
 
 namespace Acorn.Classes
 {
@@ -189,6 +192,35 @@ namespace Acorn.Classes
             Console.WriteLine("  Backing up quotes.");
             File.Move(QuotesPath, $"{Program.backupsPath}{QuotesPath.Insert(QuotesPath.IndexOf('.'), $"-backup_{DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss")}")}");
             //quotes.json -> /backups/quotes-backup_yyyy-MM-dd-HH-mm-ss.json
+            
+            IEnumerable<string> backups = Directory.GetFiles(Program.backupsPath).ToList().Order().SkipLast(10);
+            try //Windows
+            {
+                Console.Write("  Trashing old backups.");
+                foreach (string backup in backups)
+                    FileSystem.DeleteFile(backup, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+            }
+            catch //Linux
+            {
+                if (Environment.ProcessPath != null)
+                {
+                    Console.Write(" Calling gio to trash files.");
+                    System.Diagnostics.Process p = new System.Diagnostics.Process();
+                    Console.WriteLine(p.StartInfo.WorkingDirectory);
+                    p.StartInfo.FileName = "/bin/bash";
+                    p.StartInfo.Arguments = "-c \"gio trash --force ";
+                    foreach (string backup in backups) p.StartInfo.Arguments += $"{Environment.ProcessPath[..Environment.ProcessPath.LastIndexOf(Path.DirectorySeparatorChar)]}{Path.DirectorySeparatorChar}{backup} ";
+                    p.StartInfo.Arguments += "\"";
+                    p.StartInfo.UseShellExecute = true;
+                    p.Start();
+                    Console.WriteLine($"{p.StartInfo.FileName} {p.StartInfo.Arguments}");
+                }
+                else Console.Write(" ");
+            }
+            Console.WriteLine();
+            
+            backups = Directory.GetFiles(Program.backupsPath).ToList().Order();
+            foreach (string backup in backups) Console.WriteLine(backup);
         }
 
         public (string message, string secondHalf, string alttext) Add(MessageCommandContext context, DiscordMessage message)
