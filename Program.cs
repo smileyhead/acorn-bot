@@ -13,7 +13,7 @@ namespace Acorn
     {
         static string discordTokenPath = "tock.txt";
         public static string quotesPath = "quotes.json";
-        public static string queuePath = "list.toml";
+        public static string queuePath = "quotesQueue.toml";
         public static string backupsPath = "";
         public static string currencyPath = "eur.json";
         static string helpArticlesPath = "help.json";
