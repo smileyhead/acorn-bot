@@ -58,5 +58,9 @@
   {
     "Command": "calculate",
     "HelpText": "The `/calculate` command evaluates a numeric expression. This command uses the [Dangl.Calculator library](<https://github.com/GeorgDangl/Dangl.Calculator>) by Georg Dangl. The command takes one argument, the expression itself. An expression may or may not contain spaces.\n\n**Supported functions:** basic functions, exponentiation, modulo, parentheses, as well as floor(), ceil(), round(), sin(), cos(), tan(), log(), rad(), deg(), sqrt(). This list is not exhaustive – see the link above for more details.\n\n**Usage:**\n`/calculate 2+2` returns the value of two plus two, equals four.\n`/calculate sqrt(25)+5` calculates the square root of twenty-five – five – then adds five to the result, returning ten."
+  },
+  {
+    "Command": "dadjoke",
+    "HelpText": "The `/dadjoke` command returns a random dad joke. This command uses the [icanhazdadjoke API](<https://icanhazdadjoke.com/>) by Bratt Langdon. This command takes no arguments."
   }
 ]

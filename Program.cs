@@ -1,4 +1,5 @@
-﻿using Acorn.Classes;
+﻿using System.Net.Http.Headers;
+using Acorn.Classes;
 using DSharpPlus;
 using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands;
@@ -20,6 +21,7 @@ namespace Acorn
         static string discordToken = File.ReadLines(discordTokenPath).First();
         static DiscordClientBuilder builder = DiscordClientBuilder.CreateDefault(discordToken, DiscordIntents.MessageContents | TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
         public static DiscordClient debugClient = builder.Build();
+        public static readonly HttpClient httpClient = new();
         static DiscordChannel debugChannel;
         public static HelpArticlesList helpArticlesList = new(helpArticlesPath);
         public static QuotesList quotesList = new(debugClient, quotesPath, queuePath);
@@ -38,6 +40,8 @@ namespace Acorn
             Console.WriteLine("Initialising...");
             debugChannel = debugClient.GetChannelAsync(1337097452859428877).Result;
             backupsPath = $"backups{Path.DirectorySeparatorChar}";
+            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Acorn Discord bot (https://github.com/smileyhead/acorn-bot/)");
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/plain"));
 
             if (string.IsNullOrEmpty(discordToken))
             {
@@ -55,15 +59,17 @@ namespace Acorn
                     typeof(Commands_Slash.SpecificQuoteCommand), typeof(Commands_Slash.CharacterCommand), typeof(Commands_Slash.FlipCommand),
                     typeof(Commands_Slash.ConvertCommand), typeof(Commands_Slash.SearchQuoteCommand), typeof(Commands_Slash.QuoteByCommand),
                     typeof(Commands_Slash._8BallCommand), typeof(Commands_Slash.ExchangeCommand), typeof(Commands_Slash.CalculateCommand),
+                    typeof(Commands_Slash.DadJokeCommand),
 
                     //Context Menu Commands
                     typeof(Commands_ContextMenu.AddQuoteMenu), typeof(Commands_ContextMenu.UndoAddQuoteMenu),
 
                     //Text Commands
-                    typeof(Commands_Text.MessageCommand), typeof(Commands_Text.ReplyToCommand), typeof(Commands_Text.AlttextCommand), typeof(Commands_Text.DiskCommand),
-                    typeof(Commands_Text.AlcoholShCommand), typeof(Commands_Text.BanShCommand), typeof(Commands_Text.CreatureShCommand), typeof(Commands_Text.CoffeeShCommand),
-                    typeof(Commands_Text.HelpShCommand), typeof(Commands_Text.HorrorShCommand), typeof(Commands_Text.NoShCommand),
-                    typeof(Commands_Text.ŐShCommand), typeof(Commands_Text.PirateShCommand), typeof(Commands_Text.QuoteShCommand), typeof(Commands_Text.SelfieShCommand),
+                    typeof(Commands_Text.MessageCommand), typeof(Commands_Text.ReplyToCommand), typeof(Commands_Text.AlttextCommand),
+                    typeof(Commands_Text.DiskCommand), typeof(Commands_Text.AlcoholShCommand), typeof(Commands_Text.BanShCommand),
+                    typeof(Commands_Text.CreatureShCommand), typeof(Commands_Text.CoffeeShCommand), typeof(Commands_Text.HelpShCommand),
+                    typeof(Commands_Text.HorrorShCommand), typeof(Commands_Text.NoShCommand), typeof(Commands_Text.ŐShCommand),
+                    typeof(Commands_Text.PirateShCommand), typeof(Commands_Text.QuoteShCommand), typeof(Commands_Text.SelfieShCommand),
                     typeof(Commands_Text.SteeveShCommand), typeof(Commands_Text.StopShCommand), typeof(Commands_Text.WakeupShCommand)]);
                 TextCommandProcessor textCommandProcessor = new(new()
                 {
