@@ -35,7 +35,7 @@ namespace Acorn
 
         static async Task Main(string[] args)
         {
-            builder = DiscordClientBuilder.CreateDefault(discordToken, DiscordIntents.MessageContents | TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
+            builder = DiscordClientBuilder.CreateDefault(discordToken, DiscordIntents.MessageContents | DiscordIntents.GuildVoiceStates | TextCommandProcessor.RequiredIntents | SlashCommandProcessor.RequiredIntents);
             var initTime = System.Diagnostics.Stopwatch.StartNew();
             Console.WriteLine("Initialising...");
             debugChannel = debugClient.GetChannelAsync(1337097452859428877).Result;
@@ -59,7 +59,7 @@ namespace Acorn
                     typeof(Commands_Slash.SpecificQuoteCommand), typeof(Commands_Slash.CharacterCommand), typeof(Commands_Slash.FlipCommand),
                     typeof(Commands_Slash.ConvertCommand), typeof(Commands_Slash.SearchQuoteCommand), typeof(Commands_Slash.QuoteByCommand),
                     typeof(Commands_Slash._8BallCommand), typeof(Commands_Slash.ExchangeCommand), typeof(Commands_Slash.CalculateCommand),
-                    typeof(Commands_Slash.DadJokeCommand),
+                    typeof(Commands_Slash.DadJokeCommand), typeof(Commands_Slash.ReadyCheckCommand),
 
                     //Context Menu Commands
                     typeof(Commands_ContextMenu.AddQuoteMenu), typeof(Commands_ContextMenu.UndoAddQuoteMenu),
