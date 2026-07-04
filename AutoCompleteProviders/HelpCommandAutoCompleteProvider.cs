@@ -23,7 +23,9 @@ namespace Acorn.AutoCompleteProviders
                 new DiscordAutoCompleteChoice("/flip", "flip"),
                 new DiscordAutoCompleteChoice("/8ball", "8ball"),
                 new DiscordAutoCompleteChoice("/convert", "convert"),
-                new DiscordAutoCompleteChoice("/calculate", "calculate")
+                new DiscordAutoCompleteChoice("/calculate", "calculate"),
+                new DiscordAutoCompleteChoice("/dadjoke", "dadjoke"),
+                new DiscordAutoCompleteChoice("/readycheck", "readycheck")
             ];
 
             if (context.UserInput.Length < 3)
