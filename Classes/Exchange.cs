@@ -74,7 +74,7 @@ namespace Acorn.Classes
                 (success, outputValue, inputName, outputName) = Convert(value, inputCurrency, outputCurrency);
                 if (!success) { return outputName; }
 
-                return $"**{value} {inputName.ToString(CultureInfo.CreateSpecificCulture("en-US"))}** equals **{outputValue} {outputName}**.\n" +
+                return $"**{value.ToString("N2", CultureInfo.CreateSpecificCulture("en-US"))} {inputName}** equals **{outputValue} {outputName}**.\n" +
                        $"-# Rates based on data from <t:{((DateTimeOffset)LastUpdated).ToUnixTimeSeconds()}:D>.";
             }
 
@@ -112,6 +112,8 @@ namespace Acorn.Classes
 
             return (true, (value / inputValue * outputValue).ToString("N2", CultureInfo.CreateSpecificCulture("en-US")), inputCurrency.Name, outputCurrency.Name);
         }
+        
+        //Only dragons beyond this point
 
         public class Eur
         {
