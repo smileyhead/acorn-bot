@@ -27,7 +27,7 @@ namespace Acorn.AutoCompleteProviders
                     voiceState.ChannelId.ToString()));
             }
             
-            types.Sort();
+            types.Sort((a, b) => a.Name.CompareTo(b.Name));
             types.Add(new DiscordAutoCompleteChoice("Generic ready check", "generic"));
 
             IEnumerable<DiscordAutoCompleteChoice> typesTask = types;
