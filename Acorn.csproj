@@ -11,15 +11,6 @@
     <ItemGroup>
         <None Remove="tock.txt"/>
     </ItemGroup>
-
-    <Target Name="CopyJavaScript" AfterTargets="AfterBuild">
-        <ItemGroup>
-            <JavaScriptModulesFolder Include="JS_Modules\**\*"/>
-        </ItemGroup>
-        
-        <Copy SourceFiles="Scripts\DiceRoller.mjs" DestinationFolder="$(OutDir)\Scripts" />
-        <Copy SourceFiles="@(JavaScriptModulesFolder)" DestinationFolder="$(OutDir)\JS_Modules\%(RecursiveDir)" />
-    </Target>
     
     <ItemGroup>
         <PackageReference Include="Dangl.Calculator" Version="2.2.0"/>
