@@ -23,7 +23,7 @@ namespace Acorn.AutoCompleteProviders
                         $"Ready check {context.Guild.Channels.First(c => c.Value.Id == voiceState.ChannelId).Value.Name} (1 user connected)",
                         voiceState.ChannelId.ToString()));
                 else types.Add(new DiscordAutoCompleteChoice(
-                    $"Ready check {context.Guild.Channels.First(c => c.Value.Id == voiceState.ChannelId).Value.Name} ({count} user connected)",
+                    $"Ready check {context.Guild.Channels.First(c => c.Value.Id == voiceState.ChannelId).Value.Name} ({count} users connected)",
                     voiceState.ChannelId.ToString()));
             }
             
