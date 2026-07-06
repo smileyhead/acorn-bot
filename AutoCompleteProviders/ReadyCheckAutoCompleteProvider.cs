@@ -12,7 +12,7 @@ namespace Acorn.AutoCompleteProviders
         {
             List<DiscordAutoCompleteChoice> types = new List<DiscordAutoCompleteChoice>();
             List<DiscordVoiceState> voiceStates = new List<DiscordVoiceState>(context.Guild?.VoiceStates.Values!) ?? [];
-            List<DiscordVoiceState> distinctVoiceStates = new List<DiscordVoiceState>(voiceStates.Distinct()) ?? [];
+            List<DiscordVoiceState> distinctVoiceStates = new List<DiscordVoiceState>(voiceStates.DistinctBy(v => v.ChannelId)) ?? [];
 
             foreach (DiscordVoiceState voiceState in distinctVoiceStates)
             {
