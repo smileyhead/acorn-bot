@@ -12,15 +12,19 @@ namespace Acorn.Commands_Slash
     {
         [Command("convert"), Description("Converts a value between two units.")]
         public static async ValueTask ExecuteAsync(CommandContext context,
-            [Description("The value you wish to convert.")] string inputValue,
-            [Description("The unit you with to convert from."), SlashAutoCompleteProvider<ConvertCommandAutoCompleteProvider>] string inputUnit,
-            [Description("The unit you wish to convert to."), SlashAutoCompleteProvider<ConvertCommandAutoCompleteProvider>] string outputUnit)
+            [Description("The value you wish to convert.")]
+            string inputValue,
+            [Description("The unit you with to convert from."),
+             SlashAutoCompleteProvider<ConvertCommandAutoCompleteProvider>]
+            string inputUnit,
+            [Description("The unit you wish to convert to."),
+             SlashAutoCompleteProvider<ConvertCommandAutoCompleteProvider>]
+            string outputUnit)
         {
             await context.DeferResponseAsync();
 
             Console.WriteLine("Converting a value.");
 
-            bool alreadyAnswered = false;
             bool infiniteValue = false;
 
             if (inputValue == "∞")
@@ -28,63 +32,71 @@ namespace Acorn.Commands_Slash
                 infiniteValue = true;
                 inputValue = "1";
             }
-            
+
             inputValue = NumberExpander.Expand(inputValue);
 
             if (!double.TryParse(inputValue, CultureInfo.InvariantCulture, out double inputDouble))
             {
                 await context.RespondAsync($"Error: The input value could not be parsed.");
-                alreadyAnswered = true;
+                return;
             }
 
             string[] inputUnitSplit = inputUnit.Split('.');
             IQuantity? inputQuantity = null;
-            if (!alreadyAnswered)
+            try
             {
-                try { Quantity.TryFrom(value: inputDouble, quantityName: inputUnitSplit[0], unitName: inputUnitSplit[1], out inputQuantity); }
-                catch
-                {
-                    await context.RespondAsync($"Error: The input type `{inputUnit}` is invalid.");
-                    alreadyAnswered = true;
-                }
+                Quantity.TryFrom(value: inputDouble, quantityName: inputUnitSplit[0], unitName: inputUnitSplit[1],
+                    out inputQuantity);
+            }
+            catch
+            {
+                await context.RespondAsync($"Error: The input type `{inputUnit}` is invalid.");
+                return;
             }
 
             string[] outputUnitSplit = outputUnit.Split('.');
             IQuantity? outputQuantity = null;
-            if (!alreadyAnswered)
+            try
             {
-                try { Quantity.TryFrom(value: 0, quantityName: outputUnitSplit[0], unitName: outputUnitSplit[1], out outputQuantity); }
-                catch
-                {
-                    await context.RespondAsync($"Error: The output type `{outputUnit}` is invalid.");
-                    alreadyAnswered = true;
-                }
+                Quantity.TryFrom(value: 0, quantityName: outputUnitSplit[0], unitName: outputUnitSplit[1],
+                    out outputQuantity);
+            }
+            catch
+            {
+                await context.RespondAsync($"Error: The output type `{outputUnit}` is invalid.");
+                return;
             }
 
-            if (!alreadyAnswered && inputQuantity.QuantityInfo.UnitType != outputQuantity.QuantityInfo.UnitType)
+            if (inputQuantity.QuantityInfo.UnitType != outputQuantity.QuantityInfo.UnitType)
             {
-                await context.RespondAsync($"Error: The input and output categories `{inputQuantity.QuantityInfo.UnitType}`, `{outputQuantity.QuantityInfo.UnitType}` do not match.");
-                alreadyAnswered = true;
+                await context.RespondAsync(
+                    $"Error: The input and output categories `{inputQuantity.QuantityInfo.UnitType}`, `{outputQuantity.QuantityInfo.UnitType}` do not match.");
+                return;
             }
 
-            else if (!alreadyAnswered)
+            string inputNumberFormatted = inputQuantity.ToString("N2", CultureInfo.CreateSpecificCulture("en-US"));
+            string outputNumberFormatted = inputQuantity.ToUnit(outputQuantity.Unit)
+                .ToString("N2", CultureInfo.CreateSpecificCulture("en-US"));
+
+            if (char.IsDigit(inputNumberFormatted[inputNumberFormatted.Length - 1]))
             {
-                string inputNumberFormatted = inputQuantity.ToString("N2", CultureInfo.CreateSpecificCulture("en-US"));
-                string outputNumberFormatted = inputQuantity.ToUnit(outputQuantity.Unit).ToString("N2", CultureInfo.CreateSpecificCulture("en-US"));
-
-                if (char.IsDigit(inputNumberFormatted[inputNumberFormatted.Length - 1])) { inputNumberFormatted += $" {inputUnitSplit[1]}"; }
-                if (char.IsDigit(outputNumberFormatted[outputNumberFormatted.Length - 1])) { outputNumberFormatted += $" {outputUnitSplit[1]}"; }
-
-                if (infiniteValue)
-                {
-                    inputNumberFormatted = "∞" + inputNumberFormatted.Substring(inputNumberFormatted.IndexOf(' '));
-                    outputNumberFormatted = "∞" + outputNumberFormatted.Substring(outputNumberFormatted.IndexOf(' '));
-                }
-
-                string answer = $"**{inputNumberFormatted}** equals **{outputNumberFormatted}**.";
-
-                await context.RespondAsync(answer);
+                inputNumberFormatted += $" {inputUnitSplit[1]}";
             }
+
+            if (char.IsDigit(outputNumberFormatted[outputNumberFormatted.Length - 1]))
+            {
+                outputNumberFormatted += $" {outputUnitSplit[1]}";
+            }
+
+            if (infiniteValue)
+            {
+                inputNumberFormatted = "∞" + inputNumberFormatted.Substring(inputNumberFormatted.IndexOf(' '));
+                outputNumberFormatted = "∞" + outputNumberFormatted.Substring(outputNumberFormatted.IndexOf(' '));
+            }
+
+            string answer = $"**{inputNumberFormatted}** equals **{outputNumberFormatted}**.";
+
+            await context.RespondAsync(answer);
         }
     }
 }
