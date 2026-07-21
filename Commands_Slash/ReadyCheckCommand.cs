@@ -123,10 +123,10 @@ namespace Acorn.Commands_Slash
                 Title = "Ready Check"
             };
 
-            responseYes.Sort();
-            responseNo.Sort();
-            responseUnknown?.Sort();
-            
+            responseYes.Sort((a, b) => a.Username.CompareTo(b.Username));
+            responseNo.Sort((a, b) => a.Username.CompareTo(b.Username));
+            responseUnknown?.Sort((a, b) => a.Username.CompareTo(b.Username));
+
             if (responseUnknown != null)
             {
                 embed.Description = responseYes.Count == 1
@@ -158,13 +158,17 @@ namespace Acorn.Commands_Slash
             {
                 embed.Description +=
                     $"\nReady check complete.\nReady: {responseYes.Count}/{responseUnknown.Count}\nNot Ready: {responseNo?.Except(responseYes).ToList().Count ?? 0}/{responseUnknown.Count}";
-                embed.Color = responseNo?.Except(responseYes).ToList() is { Count: > 0 } ? DiscordColor.Red : DiscordColor.Green;
+                embed.Color = responseNo?.Except(responseYes).ToList() is { Count: > 0 }
+                    ? DiscordColor.Red
+                    : DiscordColor.Green;
             }
             else
             {
                 embed.Description +=
                     $"\nReady check complete.\nReady: {responseYes.Count}\nNot Ready: {responseNo?.Except(responseYes).ToList().Count ?? 0}";
-                embed.Color = responseNo?.Except(responseYes).ToList() is { Count: > 0 } ? DiscordColor.Red : DiscordColor.Green;
+                embed.Color = responseNo?.Except(responseYes).ToList() is { Count: > 0 }
+                    ? DiscordColor.Red
+                    : DiscordColor.Green;
             }
 
             return embed;
