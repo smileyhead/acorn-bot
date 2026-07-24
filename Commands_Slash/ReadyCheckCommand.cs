@@ -139,12 +139,14 @@ namespace Acorn.Commands_Slash
                 List<DiscordUser> respondents = [];
                 respondents.AddRange(responseYes);
                 if (responseNo.Count > 0) respondents.AddRange(responseNo);
-                embed.Description = respondents.Distinct().ToList().Count switch
-                {
-                    0 => "No respondents yet\n\n",
-                    1 => "1 respondent\n\n",
-                    _ => $"{respondents.Count} respondents\n\n"
-                };
+                embed.Description =
+                    respondents.DistinctBy(user => user.Id).Where(user => !user.IsBot).ToList().Count switch
+                    {
+                        0 => "No respondents yet\n\n",
+                        1 => "1 respondent\n\n",
+                        _ =>
+                            $"{respondents.DistinctBy(user => user.Id).Where(user => !user.IsBot).ToList().Count} respondents\n\n"
+                    };
                 embed.Description += BuildList(respondents.Distinct().ToList());
             }
 
