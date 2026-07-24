@@ -3,8 +3,10 @@ using DSharpPlus.Commands;
 using DSharpPlus.Commands.Processors.SlashCommands.ArgumentModifiers;
 using System.ComponentModel;
 using System.Globalization;
+using System.Text.RegularExpressions;
 using Acorn.Classes;
 using UnitsNet;
+using UnitsNet.Units;
 
 namespace Acorn.Commands_Slash
 {
@@ -26,23 +28,39 @@ namespace Acorn.Commands_Slash
             Console.WriteLine("Converting a value.");
 
             bool infiniteValue = false;
+            bool inputFtIn = false;
+            bool outputFtIn = false;
+            IQuantity? inputQuantity;
+            IQuantity? outputQuantity;
 
-            if (inputValue == "∞")
+            if (inputValue.Contains('∞'))
             {
                 infiniteValue = true;
                 inputValue = "1";
             }
 
-            inputValue = NumberExpander.Expand(inputValue);
+            if (inputUnit.EndsWith("FeetInches"))
+            {
+                inputFtIn = true;
+                inputUnit = "Length.Inch";
+                inputValue = NumberExpander.ExpandFtIn(inputValue) ?? inputValue;
+            }
+            else inputValue = NumberExpander.Expand(inputValue) ?? inputValue;
+
+            if (outputUnit.EndsWith("FeetInches"))
+            {
+                outputFtIn = true;
+                outputUnit = "Length.Inch";
+            }
 
             if (!double.TryParse(inputValue, CultureInfo.InvariantCulture, out double inputDouble))
             {
                 await context.RespondAsync($"Error: The input value could not be parsed.");
+                Console.WriteLine(inputValue);
                 return;
             }
 
             string[] inputUnitSplit = inputUnit.Split('.');
-            IQuantity? inputQuantity = null;
             try
             {
                 Quantity.TryFrom(value: inputDouble, quantityName: inputUnitSplit[0], unitName: inputUnitSplit[1],
@@ -55,7 +73,6 @@ namespace Acorn.Commands_Slash
             }
 
             string[] outputUnitSplit = outputUnit.Split('.');
-            IQuantity? outputQuantity = null;
             try
             {
                 Quantity.TryFrom(value: 0, quantityName: outputUnitSplit[0], unitName: outputUnitSplit[1],
@@ -74,9 +91,24 @@ namespace Acorn.Commands_Slash
                 return;
             }
 
-            string inputNumberFormatted = inputQuantity.ToString("N2", CultureInfo.CreateSpecificCulture("en-US"));
-            string outputNumberFormatted = inputQuantity.ToUnit(outputQuantity.Unit)
-                .ToString("N2", CultureInfo.CreateSpecificCulture("en-US"));
+            string inputNumberFormatted;
+            string outputNumberFormatted;
+            if (inputFtIn)
+            {
+                Length.TryParseFeetInches(inputQuantity.Value + "in", out Length inputNumberFtIn);
+                inputNumberFormatted = inputNumberFtIn.FeetInches.ToString();
+            }
+            else inputNumberFormatted = inputQuantity.ToString("N2", CultureInfo.CreateSpecificCulture("en-US"));
+
+            if (outputFtIn)
+            {
+                Length outputNumberFtIn = Length.FromInches(inputQuantity.ToUnit(outputQuantity.Unit).Value);
+                outputNumberFormatted = FormatArchitecturalString(
+                    outputNumberFtIn.FeetInches.ToArchitecturalString(100));
+            }
+            else
+                outputNumberFormatted = inputQuantity.ToUnit(outputQuantity.Unit)
+                    .ToString("N2", CultureInfo.CreateSpecificCulture("en-US"));
 
             if (char.IsDigit(inputNumberFormatted[inputNumberFormatted.Length - 1]))
             {
@@ -97,6 +129,18 @@ namespace Acorn.Commands_Slash
             string answer = $"**{inputNumberFormatted}** equals **{outputNumberFormatted}**.";
 
             await context.RespondAsync(answer);
+        }
+
+        private static string FormatArchitecturalString(string input)
+        {
+            Regex zeroSpaceFinder = new Regex(@"\d+ \d+");
+            var match = zeroSpaceFinder.Match(input);
+            if (match.Success)
+                input = $"{input[..match.Index]}{match.Value.Replace(' ', '​')}{input[(match.Index + match.Length)..]}";
+
+            input = input.Replace("' -", " ft").Replace('/', '⁄').Replace("\"", " in");
+            
+            return input;
         }
     }
 }
