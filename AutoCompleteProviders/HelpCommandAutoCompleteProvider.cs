@@ -28,14 +28,11 @@ namespace Acorn.AutoCompleteProviders
                 new DiscordAutoCompleteChoice("/readycheck", "readycheck")
             ];
 
-            if (context.UserInput.Length < 3)
-            {
-                return ValueTask.FromResult(commands);
-            }
-            else
-            {
-                return ValueTask.FromResult(commands.Where(unit => unit.Name.ToLower().Contains(context.UserInput.ToLower())).Take(25));
-            }
+            commands = commands.OrderBy(command => command.Name);
+
+            return ValueTask.FromResult(context.UserInput.Length < 3
+                ? commands
+                : commands.Where(unit => unit.Name.ToLower().Contains(context.UserInput.ToLower())).Take(25));
         }
     }
 }
