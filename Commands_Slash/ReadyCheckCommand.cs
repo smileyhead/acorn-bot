@@ -50,30 +50,39 @@ namespace Acorn.Commands_Slash
             {
                 channel = await context.Guild.GetChannelAsync(channelId);
                 responseUnknown = channel.Users.Where(u => !u.IsBot).ToList<DiscordUser>();
+                //Filtering out bots so that neither Acorn nor e.g. music bots present in a VC cause any issues
             }
 
             await context.RespondAsync(
                 new DiscordMessageBuilder().AddEmbed(BuildReadyTableMessage(deadline, responseYes,
                     responseNo, responseUnknown)));
             var message = await context.GetResponseAsync();
-            await message.CreateReactionAsync(DiscordEmoji.FromUnicode("✔️"));
-            await message.CreateReactionAsync(DiscordEmoji.FromUnicode("✖️"));
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode("⭕"));
+            await message.CreateReactionAsync(DiscordEmoji.FromUnicode("❌"));
 
 
             Task.Delay(4000).Wait(); //API usage optimisation by accounting for message arrival and human reaction time
             responseYes =
-                message.GetReactionsAsync(DiscordEmoji.FromUnicode("✔️")).ToListAsync().Result;
+                message.GetReactionsAsync(DiscordEmoji.FromUnicode("⭕")).ToListAsync().Result;
             responseNo =
-                message.GetReactionsAsync(DiscordEmoji.FromUnicode("✖️")).ToListAsync().Result;
+                message.GetReactionsAsync(DiscordEmoji.FromUnicode("❌")).ToListAsync().Result;
 
             while (DateTimeOffset.UtcNow.ToUnixTimeSeconds() < deadline)
             {
                 List<DiscordUser> responseYesNew =
-                    message.GetReactionsAsync(DiscordEmoji.FromUnicode("✔️")).ToListAsync().Result.Where(u => !u.IsBot)
+                    message.GetReactionsAsync(DiscordEmoji.FromUnicode("⭕")).ToListAsync().Result.Where(u => !u.IsBot)
                         .ToList();
                 List<DiscordUser> responseNoNew =
-                    message.GetReactionsAsync(DiscordEmoji.FromUnicode("✖️")).ToListAsync().Result.Where(u => !u.IsBot)
+                    message.GetReactionsAsync(DiscordEmoji.FromUnicode("❌")).ToListAsync().Result.Where(u => !u.IsBot)
                         .ToList();
+
+                if (responseUnknown is not null) //Ignore reactions by users outside the scope of a non-generic check
+                {
+                    foreach (var u in responseYesNew.Where(u => !responseUnknown.Exists(x => x.Id == u.Id)).ToList())
+                        responseYesNew.Remove(u);
+                    foreach (var u in responseNoNew.Where(u => !responseUnknown.Exists(x => x.Id == u.Id)).ToList())
+                        responseNoNew.Remove(u);
+                }
 
                 if (!new HashSet<DiscordUser>(responseYes).SetEquals(responseYesNew) ||
                     !new HashSet<DiscordUser>(responseNo).SetEquals(responseNoNew))
@@ -183,11 +192,11 @@ namespace Acorn.Commands_Slash
                     string usedName = user.GlobalName == "" ? user.Username : user.GlobalName;
                     if (responseYes.Contains(user))
                     {
-                        answer += $"✔️ {usedName}\n";
+                        answer += $"⭕ {usedName}\n";
                     }
                     else if (responseNo.Contains(user))
                     {
-                        answer += $"️✖️ {usedName}\n";
+                        answer += $"️❌ {usedName}\n";
                     }
                     else if (responseUnknown != null && responseUnknown.Contains(user))
                     {
