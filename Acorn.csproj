@@ -13,14 +13,14 @@
     </ItemGroup>
     
     <ItemGroup>
-        <PackageReference Include="Dangl.Calculator" Version="2.2.0"/>
-        <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02566"/>
-        <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02566"/>
-        <PackageReference Include="Microsoft.ClearScript.Core" Version="7.5.0"/>
-        <PackageReference Include="Microsoft.ClearScript.V8" Version="7.5.0"/>
+        <PackageReference Include="Dangl.Calculator" Version="2.3.2" />
+        <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-02613" />
+        <PackageReference Include="DSharpPlus.Commands" Version="5.0.0-nightly-02613" />
+        <PackageReference Include="Microsoft.ClearScript.Core" Version="7.5.1.1" />
+        <PackageReference Include="Microsoft.ClearScript.V8" Version="7.5.1.1" />
         <PackageReference Include="Tesseract" Version="5.2.0"/>
-        <PackageReference Include="Tomlyn" Version="2.9.0" />
-        <PackageReference Include="UnitsNet" Version="6.0.0-pre019"/>
+        <PackageReference Include="Tomlyn" Version="2.10.1" />
+        <PackageReference Include="UnitsNet" Version="6.0.0-pre021" />
     </ItemGroup>
 
     <ItemGroup>
