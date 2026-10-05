@@ -25,7 +25,8 @@ namespace Acorn.AutoCompleteProviders
                 new DiscordAutoCompleteChoice("/convert", "convert"),
                 new DiscordAutoCompleteChoice("/calculate", "calculate"),
                 new DiscordAutoCompleteChoice("/dadjoke", "dadjoke"),
-                new DiscordAutoCompleteChoice("/readycheck", "readycheck")
+                new DiscordAutoCompleteChoice("/readycheck", "readycheck"),
+                new DiscordAutoCompleteChoice("/portalto", "portalto")
             ];
 
             commands = commands.OrderBy(command => command.Name);
